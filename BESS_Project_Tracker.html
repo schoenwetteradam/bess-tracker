@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BESS Tracker — Spuncast</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;font-size:14px;min-height:100vh;}
+header{background:#0C447C;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:100;}
+header h1{font-size:16px;font-weight:600;line-height:1.3;}
+header p{font-size:11px;opacity:.7;margin-top:2px;}
+.prog-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.prog-bar{width:100px;height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:#5DCAA5;border-radius:3px;transition:width .35s;}
+.prog-lbl{font-size:12px;opacity:.9;white-space:nowrap;}
+.gates{background:#fff;border-bottom:1px solid #e0e4ea;padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.gate-lbl{font-size:10px;color:#6b7280;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
+.gate{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;}
+.gate.red{background:#FEE2E2;color:#991b1b;border:1px solid #FECACA;}
+.gate.amber{background:#FEF3C7;color:#92400e;border:1px solid #FDE68A;}
+main{max-width:1020px;margin:0 auto;padding:16px 14px 60px;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:16px;}
+.met{background:#fff;border:1px solid #e0e4ea;border-radius:10px;padding:11px 14px;}
+.met-lbl{font-size:10px;color:#6b7280;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px;}
+.met-val{font-size:21px;font-weight:700;color:#0C447C;line-height:1;}
+.met-sub{font-size:11px;color:#9ca3af;margin-top:3px;}
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.filters-lbl{font-size:12px;color:#6b7280;font-weight:500;}
+.fbtn{font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;}
+.fbtn:hover{background:#f3f4f6;}
+.fbtn.on{background:#0C447C;color:#fff;border-color:#0C447C;}
+.card{background:#fff;border:1px solid #e0e4ea;border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.card-head{display:flex;align-items:stretch;cursor:pointer;user-select:none;}
+.card-head:hover{background:#fafbfd;}
+.cbar{width:5px;flex-shrink:0;}
+.head-inner{flex:1;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ph-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;flex-shrink:0;}
+.ph-name{font-size:14px;font-weight:600;color:#111;flex:1;min-width:140px;}
+.ph-meta{font-size:11px;color:#6b7280;white-space:nowrap;}
+.ph-prog{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.ph-pbar{width:60px;height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden;}
+.ph-pfill{height:100%;border-radius:3px;transition:width .3s;}
+.ph-pct{font-size:12px;color:#6b7280;min-width:30px;text-align:right;}
+.chevron{padding:12px 14px;font-size:22px;color:#9ca3af;transition:transform .2s;display:flex;align-items:center;flex-shrink:0;}
+.card-body{display:none;border-top:1px solid #f0f2f5;}
+.card-body.open{display:block;}
+table.tt{width:100%;border-collapse:collapse;table-layout:fixed;}
+table.tt th{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;padding:7px 12px;background:#f8f9fb;border-bottom:1px solid #e9ecef;text-align:left;}
+table.tt th:nth-child(1){width:36px;}
+table.tt th:nth-child(3){width:150px;}
+table.tt th:nth-child(4){width:126px;}
+table.tt th:nth-child(5){width:38px;}
+.trow{border-bottom:1px solid #f0f2f5;}
+.trow:last-child{border-bottom:none;}
+.trow:hover{background:#fafbfc;}
+.trow.done td{opacity:.5;}
+.trow.done .ttext{text-decoration:line-through;color:#9ca3af;}
+.trow.crit{background:#fff8f8;}
+.trow.crit .ttext{color:#991b1b;}
+td{padding:8px 12px;vertical-align:middle;}
+.chkcell{width:36px;text-align:center;}
+.chkcell input{width:16px;height:16px;cursor:pointer;accent-color:#0C447C;}
+.ttext{font-size:13px;line-height:1.5;word-break:break-word;}
+.cpill{display:inline-block;font-size:10px;font-weight:700;background:#FEE2E2;color:#991b1b;border-radius:4px;padding:1px 5px;margin-right:5px;vertical-align:middle;white-space:nowrap;}
+.otag{display:inline-block;font-size:11px;background:#EFF6FF;color:#1e40af;border-radius:4px;padding:2px 7px;font-weight:500;white-space:nowrap;}
+.ssel{font-size:12px;border:1px solid #e0e4ea;border-radius:5px;padding:3px 5px;background:#fff;cursor:pointer;outline:none;color:#374151;width:100%;}
+.ssel:focus{border-color:#0C447C;}
+.nbtn{background:#fff;border:1px solid #e0e4ea;border-radius:5px;padding:3px 8px;cursor:pointer;font-size:12px;color:#9ca3af;transition:all .15s;}
+.nbtn:hover{background:#f3f4f6;}
+.nbtn.has{background:#EFF6FF;border-color:#93c5fd;color:#1d4ed8;}
+.nrow{display:none;background:#f8faff;}
+.nrow.open{display:table-row;}
+.ninp{width:100%;font-size:12px;border:1px solid #e0e4ea;border-radius:6px;padding:5px 8px;resize:vertical;min-height:42px;font-family:inherit;color:#374151;outline:none;}
+.ninp:focus{border-color:#0C447C;}
+.pnotes-wrap{padding:10px 14px;background:#f8f9fb;border-top:1px solid #f0f2f5;}
+.pnotes-wrap label{font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:4px;}
+.pnotes-wrap textarea{width:100%;font-size:12px;border:1px solid #e0e4ea;border-radius:6px;padding:6px 8px;min-height:44px;resize:vertical;font-family:inherit;color:#374151;outline:none;background:#fff;}
+.pnotes-wrap textarea:focus{border-color:#0C447C;}
+.no-tasks{padding:14px 16px;color:#9ca3af;font-size:13px;font-style:italic;}
+.sec{font-size:13px;font-weight:700;color:#374151;margin:20px 0 10px;display:flex;align-items:center;gap:8px;}
+.sec::after{content:'';flex:1;height:1px;background:#e5e7eb;}
+.rtbl{width:100%;border-collapse:collapse;font-size:13px;}
+.rtbl th{background:#0C447C;color:#fff;padding:7px 12px;text-align:left;font-weight:500;font-size:12px;}
+.rtbl td{padding:8px 12px;border-bottom:1px solid #f0f2f5;}
+.rtbl tr:nth-child(even) td{background:#f8f9fb;}
+.rtbl tr:last-child td{background:#d1fae5;font-weight:600;color:#065f46;border-bottom:none;}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:10px;}
+.ccard{background:#fff;border:1px solid #e0e4ea;border-radius:8px;padding:11px 13px;display:flex;align-items:flex-start;gap:10px;}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.cn{font-size:13px;font-weight:600;color:#111;}
+.cr{font-size:11px;color:#6b7280;margin-top:1px;line-height:1.4;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>BESS Installation Master Plan — Spuncast, Inc.</h1>
+    <p>Docket 9709-FG-2026 &nbsp;|&nbsp; 2× Generac SBE Cabinet — 1 MW / 2,752 kWh &nbsp;|&nbsp; Target: ~$107,000/yr savings</p>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-bar"><div class="prog-fill" id="gfill"></div></div>
+    <span class="prog-lbl" id="glbl">0% complete</span>
+  </div>
+</header>
+
+<div class="gates">
+  <span class="gate-lbl">Critical gates</span>
+  <span class="gate red">⏰ June 26, 2026 @ 1:30 PM CT — OEI Grant submission</span>
+  <span class="gate amber">⚠ Focus on Energy pre-app must precede any equipment PO</span>
+  <span class="gate amber">⚠ Andy K. bus voltage confirmation blocks transformer order</span>
+</div>
+
+<main>
+  <div class="metrics" id="MET"></div>
+  <div class="filters">
+    <span class="filters-lbl">Show:</span>
+    <button class="fbtn on" onclick="setFilter('all',this)">All phases</button>
+    <button class="fbtn" onclick="setFilter('open',this)">Open tasks</button>
+    <button class="fbtn" onclick="setFilter('critical',this)">Critical only</button>
+    <button class="fbtn" onclick="setFilter('adam',this)">Adam's tasks</button>
+    <button class="fbtn" onclick="setFilter('pete',this)">Pete's tasks</button>
+    <button class="fbtn" onclick="setFilter('andy',this)">Andy's tasks</button>
+  </div>
+  <div id="PH"></div>
+
+  <div class="sec">ROI summary</div>
+  <table class="rtbl">
+    <tr><th>Scenario</th><th>Payback</th><th>Notes</th></tr>
+    <tr><td>Tier 1 — No incentives</td><td>~15.7 years</td><td>Full $1.68M gross project cost</td></tr>
+    <tr><td>Tier 2 — After $1M OEI grant</td><td>~6.4 years</td><td>Net cost ~$681K after grant</td></tr>
+    <tr><td>Tier 3 — Grant + §6418 ITC transfer (~$378K)</td><td>~2.8 years</td><td>Best case — requires tax equity / transfer partner</td></tr>
+  </table>
+  <p style="font-size:11px;color:#6b7280;margin-top:7px;">STPR rate: Summer on-peak $22.331/kW | Non-summer $16.066/kW | On-peak window: Noon–8 PM Mon–Fri non-holiday</p>
+
+  <div class="sec" style="margin-top:22px;">Key contacts</div>
+  <div class="cgrid" id="CG"></div>
+</main>
+
+<script>
+var PH=[
+  {id:'p1',num:'Phase 1',name:'Pre-Construction: Permits, Utility & Incentive Sequencing',tl:'Now to Grant Award',ow:'Adam',col:'#185FA5',bg:'#E6F1FB',tasks:[
+    {id:'p1t1',tx:'Submit OEI EIGP Round 6 grant by June 26, 2026 at 1:30 PM CT',ow:'Adam',cr:1},
+    {id:'p1t2',tx:'Submit Focus on Energy custom incentive pre-application BEFORE any equipment PO',ow:'Adam + Ted Tracy',cr:1},
+    {id:'p1t3',tx:'Confirm ITC path (section 6418 transfer or 6417 direct pay) with Rob Bellile at Baker Tilly',ow:'Adam',cr:0},
+    {id:'p1t4',tx:'Confirm Generac domestic content adder qualification - Waukesha WI manufacturing',ow:'Adam',cr:0},
+    {id:'p1t5',tx:'Obtain Wisconsin building permit - new reinforced concrete pads, outdoor equipment',ow:'Adam',cr:0},
+    {id:'p1t6',tx:'File Wisconsin electrical permit - licensed master electrician, 480V/575V commercial',ow:'Adam',cr:0},
+    {id:'p1t7',tx:'Confirm We Energies interconnection and standby requirements with Brendan Danielson',ow:'Adam',cr:0},
+    {id:'p1t8',tx:'Review City of Watertown zoning for outdoor equipment pad - setbacks, screening',ow:'Adam',cr:0},
+    {id:'p1t9',tx:'Engage licensed civil/structural PE to stamp concrete pad drawings for permit',ow:'Adam',cr:0},
+    {id:'p1t10',tx:'Obtain geotechnical soil report for subgrade - required for pad engineering',ow:'TBD',cr:0}
+  ]},
+  {id:'p2',num:'Phase 2',name:'Site Prep - North Foundry (Unit 1)',tl:'~4 weeks before delivery',ow:'Pete Hazard',col:'#0F6E56',bg:'#E1F5EE',tasks:[
+    {id:'p2t1',tx:'Relocate drums, casting pallets, and staging debris from Unit 1 pad zone',ow:'Pete + Ops',cr:0},
+    {id:'p2t2',tx:'Clear vegetation; dress and compact subbase in Unit 1 footprint (~15 ft x 10 ft plus 3 ft clearance)',ow:'Pete',cr:0},
+    {id:'p2t3',tx:'Excavate and pour reinforced concrete pad - 6 inch thick, #4 rebar at 12 inch OC, 3000 PSI, Generac anchor bolts',ow:'Contractor',cr:0},
+    {id:'p2t4',tx:'Embed conduit sleeves during pour: power, control/Modbus, grounding conductor chase',ow:'Electrician',cr:0},
+    {id:'p2t5',tx:'Andy K. to confirm North Foundry main bus voltage - 480V or 575V - BLOCKS transformer order',ow:'Andy K.',cr:1},
+    {id:'p2t6',tx:'Pour separate pad for 500 kVA step-up transformer - pending Andy bus voltage confirmation',ow:'Contractor',cr:0},
+    {id:'p2t7',tx:'Install yellow bollard protection posts around pad - 4 min, 6 inch steel-filled, set in concrete',ow:'Pete',cr:0},
+    {id:'p2t8',tx:'Install security lighting covering Unit 1 pad area on building wall',ow:'Pete',cr:0}
+  ]},
+  {id:'p3',num:'Phase 3',name:'Site Prep - South Foundry Corridor (Unit 2)',tl:'~4 weeks before delivery',ow:'Pete Hazard',col:'#0F6E56',bg:'#E1F5EE',tasks:[
+    {id:'p3t1',tx:'Call Diggers Hotline 811 - confirm no underground utilities in south corridor BEFORE excavating',ow:'Pete',cr:1},
+    {id:'p3t2',tx:'Clear overgrown vegetation in south corridor between building wall and embankment',ow:'Pete + Ops',cr:0},
+    {id:'p3t3',tx:'Verify cleared corridor width - minimum 12 ft clear required for crane/forklift access',ow:'Pete',cr:0},
+    {id:'p3t4',tx:'Grade and compact Unit 2 pad footprint (~15 ft x 10 ft)',ow:'Contractor',cr:0},
+    {id:'p3t5',tx:'Excavate and pour Unit 2 reinforced concrete pad - same spec as Unit 1',ow:'Contractor',cr:0},
+    {id:'p3t6',tx:'Pour separate pad for Unit 2 500 kVA transformer - confirmed required, 480V BESS to 575V furnace bus',ow:'Contractor',cr:0},
+    {id:'p3t7',tx:'Embed conduit sleeves: power to transformer, control to ARC 2',ow:'Electrician',cr:0},
+    {id:'p3t8',tx:'Inspect south building wall condition within 3 ft of new pad - no structural penetrations',ow:'Pete',cr:0},
+    {id:'p3t9',tx:'Install bollards and security lighting on south corridor',ow:'Pete',cr:0}
+  ]},
+  {id:'p4',num:'Phase 4',name:'Electrical Rough-In (Both Units)',tl:'Concurrent with site prep',ow:'Electrician + Adam',col:'#854F0B',bg:'#FAEEDA',tasks:[
+    {id:'p4t1',tx:'Run feeder conduit Unit 1 pad to North Foundry switchgear - 350 to 500 kcmil per Generac specs',ow:'Electrician',cr:0},
+    {id:'p4t2',tx:'Run feeder conduit Unit 2 pad to South Foundry 575V furnace bus via step-up transformer',ow:'Electrician',cr:0},
+    {id:'p4t3',tx:'Install Schneider Electric PM3250 CTs on 575V and 480V service lines',ow:'Electrician',cr:0},
+    {id:'p4t4',tx:'Verify PM3250 CT ratio, secondary burden, and wiring polarity before ARC commissioning',ow:'Adam + Electrician',cr:0},
+    {id:'p4t5',tx:'Run Modbus RS-485 or Ethernet control cable: ARC 1 to Unit 1 BESS interface',ow:'Electrician',cr:0},
+    {id:'p4t6',tx:'Run Modbus RS-485 or Ethernet control cable: ARC 2 to Unit 2 BESS interface',ow:'Electrician',cr:0},
+    {id:'p4t7',tx:'Install dedicated ground grid for each BESS pad per NEC Article 250',ow:'Electrician',cr:0},
+    {id:'p4t8',tx:'Install AC disconnect switch at each pad - lockable and locally accessible per NEC',ow:'Electrician',cr:0},
+    {id:'p4t9',tx:'Coordinate all switchgear work with We Energies and Andy K. - meter PJXZT1023',ow:'Adam + Andy',cr:1},
+    {id:'p4t10',tx:'Label all conductors, conduits, and equipment per NEC 110.21 and facility standards',ow:'Electrician',cr:0}
+  ]},
+  {id:'p5',num:'Phase 5',name:'Equipment Procurement and Delivery',tl:'Long lead - order ASAP after PO clearance',ow:'Adam',col:'#3C3489',bg:'#EEEDFE',tasks:[
+    {id:'p5t1',tx:'Confirm Focus on Energy pre-application submitted BEFORE issuing Generac PO - HARD GATE',ow:'Adam',cr:1},
+    {id:'p5t2',tx:'Issue Generac PO: 2x SBE Cabinet, 2x ARC controllers, 10-year warranty, freight',ow:'Adam',cr:0},
+    {id:'p5t3',tx:'Issue PO for 500 kVA step-up transformers - qty confirmed after Andy bus voltage answer',ow:'Adam',cr:0},
+    {id:'p5t4',tx:'Lock Generac quote pricing with Bill Gifford - include tariff surcharge escalation clause',ow:'Adam',cr:0},
+    {id:'p5t5',tx:'Confirm Generac domestic content status with Noah Pruitt for ITC domestic content adder',ow:'Adam',cr:0},
+    {id:'p5t6',tx:'Coordinate delivery logistics: flatbed plus crane or heavy forklift over 10000 lb for pad placement',ow:'Adam + Pete',cr:0},
+    {id:'p5t7',tx:'Schedule delivery to align with late-June power-down day commissioning window',ow:'Adam + Pete',cr:0}
+  ]},
+  {id:'p6',num:'Phase 6',name:'Equipment Installation',tl:'Late June power-down day',ow:'Pete + Generac',col:'#854F0B',bg:'#FAEEDA',tasks:[
+    {id:'p6t1',tx:'Confirm power-down day date with Pete and production - book Generac commissioning tech',ow:'Pete',cr:1},
+    {id:'p6t2',tx:'Set Unit 1 SBE Cabinet on North pad using crane or heavy lift; anchor to embedded bolts',ow:'Generac + Contractor',cr:0},
+    {id:'p6t3',tx:'Set Unit 2 SBE Cabinet on South pad using crane or heavy lift; anchor to embedded bolts',ow:'Generac + Contractor',cr:0},
+    {id:'p6t4',tx:'Set step-up transformers on adjacent pads; terminate primary and secondary connections',ow:'Electrician',cr:0},
+    {id:'p6t5',tx:'Terminate all power feeder conductors at BESS cabinets, transformers, and switchgear',ow:'Electrician',cr:0},
+    {id:'p6t6',tx:'Terminate all control wiring: ARC 1 and 2 to BESS CAN/Modbus; PM3250 CTs to ARC',ow:'Electrician',cr:0},
+    {id:'p6t7',tx:'Commission grounding system - measure ground resistance and document results',ow:'Electrician',cr:0},
+    {id:'p6t8',tx:'Generac factory commissioning tech on-site for startup and ARC programming',ow:'Generac / Noah Pruitt',cr:0},
+    {id:'p6t9',tx:'Program ARC demand setpoints - 15-min rolling average, noon to 8 PM dispatch window',ow:'Generac + Adam',cr:0},
+    {id:'p6t10',tx:'Program ARC charge windows - avoid 10 AM to noon and 8 to 10 PM per STPR restriction',ow:'Generac + Adam',cr:0},
+    {id:'p6t11',tx:'Test battery capacity and BMS fault alerts before full grid energization',ow:'Generac',cr:0}
+  ]},
+  {id:'p7',num:'Phase 7',name:'Commissioning and Verification',tl:'30 to 60 days post-installation',ow:'Adam',col:'#0F6E56',bg:'#E1F5EE',tasks:[
+    {id:'p7t1',tx:'Monitor 15-min interval demand via ARC dashboard - compare to pre-BESS baseline of 950 to 1200 kW',ow:'Adam',cr:0},
+    {id:'p7t2',tx:'Verify 12:00 to 12:15 PM furnace power-down spike is offset by BESS dispatch',ow:'Adam',cr:0},
+    {id:'p7t3',tx:'Test zero-cost mitigation: 11:45 AM voluntary furnace shutdown discipline',ow:'Pete + Ops',cr:0},
+    {id:'p7t4',tx:'Confirm STPR rate status with Brendan Danielson - verify no charging in restricted windows',ow:'Adam',cr:0},
+    {id:'p7t5',tx:'Document first full billing cycle - calculate actual demand reduction vs $107K/yr model',ow:'Adam',cr:0},
+    {id:'p7t6',tx:'Submit commissioning completion docs to Focus on Energy for custom incentive claim',ow:'Adam + Ted Tracy',cr:0},
+    {id:'p7t7',tx:'Submit IRS Form 3468 and project docs to Rob Bellile for section 6418 ITC transfer',ow:'Adam + Rob Bellile',cr:0},
+    {id:'p7t8',tx:'Register units with Generac - confirm 10-year warranty enrollment and document serial numbers',ow:'Adam',cr:0}
+  ]},
+  {id:'p8',num:'Phase 8',name:'Ongoing O&M and Demand Ratchet Strategy',tl:'Year 1 onward',ow:'Adam',col:'#185FA5',bg:'#E6F1FB',tasks:[
+    {id:'p8t1',tx:'Log monthly billed on-peak demand vs 5216 kW ratchet baseline set July 22 2025',ow:'Adam',cr:0},
+    {id:'p8t2',tx:'After 12 or more months of reduced peak data: initiate ratchet reset discussion with Brendan Danielson',ow:'Adam',cr:0},
+    {id:'p8t3',tx:'Schedule annual battery capacity test per Generac O&M manual - log state of health trend',ow:'Adam + Pete',cr:0},
+    {id:'p8t4',tx:'Update ARC dispatch setpoints seasonally - summer $22.331/kW vs non-summer $16.066/kW',ow:'Adam',cr:0},
+    {id:'p8t5',tx:'Annual ROI report to Andy Knuteson and Pete Hazard',ow:'Adam',cr:0},
+    {id:'p8t6',tx:'Track Section 301 tariff and ITC policy changes for second-system expansion economics',ow:'Adam',cr:0}
+  ]}
+];
+
+var CT=[
+  {n:'Adam Schoenwetter',r:'Jr. Mfg. Engineer - Project Lead',a:'All phases',i:'AS',c:'#185FA5'},
+  {n:'Andy Knuteson',r:'Chief Engineer',a:'Electrical confirmation, approvals',i:'AK',c:'#0C447C'},
+  {n:'Pete Hazard',r:'Director of Production',a:'Site prep, scheduling, installation',i:'PH',c:'#0F6E56'},
+  {n:'Bill Gifford',r:'Generac National BD',a:'Vendor - pricing, PO',i:'BG',c:'#854F0B'},
+  {n:'Noah Pruitt',r:'Generac Engineering / Commissioning',a:'Vendor - commissioning',i:'NP',c:'#633806'},
+  {n:'Brendan Danielson',r:'We Energies Energy Engineer',a:'Utility - tariff, interconnection',i:'BD',c:'#3C3489'},
+  {n:'Ted Tracy',r:'Focus on Energy SEM Advisor',a:'Incentives - pre-app, SEM',i:'TT',c:'#1D9E75'},
+  {n:'Rob Bellile',r:'Baker Tilly - ITC / Tax Equity',a:'Finance - ITC monetization',i:'RB',c:'#712B13'}
+];
+
+// Pure in-memory state - works in any iframe, any host
+var done={}, status={}, notes={}, pnotes={}, open={p1:true};
+var activeFilter='all';
+
+function tot(){return PH.reduce(function(a,p){return a+p.tasks.length;},0);}
+function doneCount(){return PH.reduce(function(a,p){return a+p.tasks.filter(function(t){return done[t.id];}).length;},0);}
+function critOpen(){return PH.reduce(function(a,p){return a+p.tasks.filter(function(t){return t.cr&&!done[t.id];}).length;},0);}
+function phasePct(p){var d=p.tasks.filter(function(t){return done[t.id];}).length;return p.tasks.length?Math.round(d/p.tasks.length*100):0;}
+function activePhasesCount(){return PH.filter(function(p){var pc=phasePct(p);return pc>0&&pc<100;}).length;}
+
+function visible(t){
+  if(activeFilter==='all')return true;
+  if(activeFilter==='open')return !done[t.id];
+  if(activeFilter==='critical')return !!t.cr;
+  var o=t.ow.toLowerCase();
+  if(activeFilter==='adam')return o.indexOf('adam')>=0;
+  if(activeFilter==='pete')return o.indexOf('pete')>=0;
+  if(activeFilter==='andy')return o.indexOf('andy')>=0;
+  return true;
+}
+
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  buildPhases();
+}
+
+function toggleDone(id){
+  done[id]=!done[id];
+  if(done[id]&&(!status[id]||status[id]==='Not started'))status[id]='Done';
+  if(!done[id]&&status[id]==='Done')status[id]='In progress';
+  rebuild();
+}
+function setStatus(id,v){
+  status[id]=v;
+  done[id]=(v==='Done');
+  rebuild();
+}
+function setNote(id,v){notes[id]=v;updateNB(id);}
+function setPNote(pid,v){pnotes[pid]=v;}
+function updateNB(id){var b=document.getElementById('nb'+id);if(b)b.className='nbtn'+(notes[id]?' has':'');}
+function toggleNote(id){var r=document.getElementById('nr'+id);if(r)r.classList.toggle('open');}
+function togglePhase(pid){
+  open[pid]=!open[pid];
+  var b=document.getElementById('pb'+pid),c=document.getElementById('ch'+pid);
+  if(b)b.classList.toggle('open',!!open[pid]);
+  if(c)c.style.transform=open[pid]?'rotate(90deg)':'';
+}
+
+function buildMetrics(){
+  var t=tot(),d=doneCount(),pct=t?Math.round(d/t*100):0,cr=critOpen();
+  document.getElementById('gfill').style.width=pct+'%';
+  document.getElementById('glbl').textContent=pct+'% complete';
+  document.getElementById('MET').innerHTML=
+    met('Overall progress',pct+'%',d+' of '+t+' tasks','#0C447C')+
+    met('Phases active',activePhasesCount(),'of 8 phases','#0C447C')+
+    met('Critical open',cr,cr>0?'need attention':'all clear',cr>0?'#991b1b':'#065f46')+
+    met('Target savings','$107K','per year','#0C447C')+
+    met('Grant deadline','Jun 26','2026 @ 1:30 PM CT','#991b1b');
+}
+function met(l,v,s,vc){return '<div class="met"><div class="met-lbl">'+l+'</div><div class="met-val" style="color:'+vc+'">'+v+'</div><div class="met-sub">'+s+'</div></div>';}
+
+function buildPhaseCard(p){
+  var pct=phasePct(p);
+  var vt=p.tasks.filter(visible);
+  var rows=vt.map(function(t){
+    var d=done[t.id],st=status[t.id]||'Not started',nt=notes[t.id]||'';
+    var sc=st==='Done'?'#065f46':st==='In progress'?'#1e40af':st==='Blocked'?'#991b1b':'#374151';
+    var opts=['Not started','In progress','Done','Blocked','Waiting'].map(function(s){return '<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>';}).join('');
+    return '<tr class="trow'+(d?' done':'')+(t.cr&&!d?' crit':'')+'">'
+      +'<td class="chkcell"><input type="checkbox"'+(d?' checked':'')+' onchange="toggleDone(\''+t.id+'\')" /></td>'
+      +'<td class="ttext">'+(t.cr&&!d?'<span class="cpill">CRITICAL</span>':'')+t.tx+'</td>'
+      +'<td><span class="otag">'+t.ow+'</span></td>'
+      +'<td><select class="ssel" style="color:'+sc+'" onchange="setStatus(\''+t.id+'\',this.value)">'+opts+'</select></td>'
+      +'<td><button class="nbtn'+(nt?' has':'')+'" id="nb'+t.id+'" onclick="toggleNote(\''+t.id+'\')" title="Note">note</button></td>'
+      +'</tr>'
+      +'<tr class="nrow'+(nt?' open':'')+'" id="nr'+t.id+'"><td colspan="5" style="padding:5px 12px 10px 36px"><textarea class="ninp" oninput="setNote(\''+t.id+'\',this.value)" placeholder="Add a note for this task...">'+nt+'</textarea></td></tr>';
+  }).join('');
+
+  return '<div class="card">'
+    +'<div class="card-head" onclick="togglePhase(\''+p.id+'\')">'
+      +'<div class="cbar" style="background:'+p.col+'"></div>'
+      +'<div class="head-inner">'
+        +'<span class="ph-badge" style="background:'+p.bg+';color:'+p.col+'">'+p.num+'</span>'
+        +'<span class="ph-name">'+p.name+'</span>'
+        +'<span class="ph-meta">'+p.tl+' &nbsp;. &nbsp;'+p.ow+'</span>'
+        +'<div class="ph-prog"><div class="ph-pbar"><div class="ph-pfill" style="width:'+pct+'%;background:'+p.col+'"></div></div><span class="ph-pct">'+pct+'%</span></div>'
+      +'</div>'
+      +'<div class="chevron" id="ch'+p.id+'" style="transform:'+(open[p.id]?'rotate(90deg)':'')+'">></div>'
+    +'</div>'
+    +'<div class="card-body'+(open[p.id]?' open':'')+'" id="pb'+p.id+'">'
+      +(vt.length===0?'<div class="no-tasks">No tasks match the current filter.</div>'
+        :'<table class="tt"><thead><tr><th></th><th>Task</th><th>Owner</th><th>Status</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>')
+      +'<div class="pnotes-wrap"><label>Phase notes / blockers</label><textarea oninput="setPNote(\''+p.id+'\',this.value)" placeholder="Add phase notes, blockers, or decisions here...">'+(pnotes[p.id]||'')+'</textarea></div>'
+    +'</div>'
+  +'</div>';
+}
+
+function buildPhases(){document.getElementById('PH').innerHTML=PH.map(buildPhaseCard).join('');}
+function buildContacts(){
+  document.getElementById('CG').innerHTML=CT.map(function(c){
+    return '<div class="ccard"><div class="av" style="background:'+c.c+'20;color:'+c.c+'">'+c.i+'</div>'
+      +'<div><div class="cn">'+c.n+'</div><div class="cr">'+c.r+'<br><span style="color:#9ca3af">'+c.a+'</span></div></div></div>';
+  }).join('');
+}
+function rebuild(){buildMetrics();buildPhases();}
+buildMetrics();buildPhases();buildContacts();
+</script>
+</body>
+</html>
