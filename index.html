@@ -4,21 +4,55 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BESS Tracker — Spuncast</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;font-size:14px;min-height:100vh;}
+
+/* HEADER */
 header{background:#0C447C;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:100;}
 header h1{font-size:16px;font-weight:600;line-height:1.3;}
 header p{font-size:11px;opacity:.7;margin-top:2px;}
-.prog-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.header-right{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.prog-wrap{display:flex;align-items:center;gap:8px;}
 .prog-bar{width:100px;height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden;}
 .prog-fill{height:100%;background:#5DCAA5;border-radius:3px;transition:width .35s;}
 .prog-lbl{font-size:12px;opacity:.9;white-space:nowrap;}
+.user-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 10px;cursor:pointer;transition:background .15s;}
+.user-chip:hover{background:rgba(255,255,255,.25);}
+.user-chip .uav{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.user-chip span{font-size:12px;}
+
+/* SETUP BANNER */
+.setup-banner{background:#FEF3C7;border-bottom:2px solid #F59E0B;padding:8px 20px;display:flex;align-items:center;gap:10px;}
+.setup-banner strong{font-size:12px;color:#92400e;white-space:nowrap;}
+.setup-banner p{font-size:12px;color:#78350f;flex:1;}
+.setup-banner button{font-size:12px;padding:4px 12px;background:#F59E0B;border:none;border-radius:5px;cursor:pointer;color:#fff;font-weight:600;white-space:nowrap;}
+
+/* ACTIVITY STRIP */
+.activity-strip{background:#fff;border-bottom:1px solid #e0e4ea;padding:0 20px;}
+.activity-head{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;user-select:none;}
+.activity-head-lbl{font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+.activity-preview{display:flex;gap:6px;flex:1;overflow:hidden;}
+.act-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#f3f4f6;border-radius:20px;padding:2px 8px;white-space:nowrap;color:#374151;max-width:260px;overflow:hidden;text-overflow:ellipsis;}
+.act-pill .act-who{font-weight:600;color:#0C447C;flex-shrink:0;}
+.activity-body{display:none;padding-bottom:8px;border-top:1px solid #f0f2f5;max-height:220px;overflow-y:auto;}
+.activity-body.open{display:block;}
+.act-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #f8f9fb;}
+.act-row:last-child{border-bottom:none;}
+.act-dot{width:6px;height:6px;border-radius:50%;background:#5DCAA5;flex-shrink:0;margin-top:5px;}
+.act-body{flex:1;font-size:12px;color:#374151;line-height:1.4;}
+.act-body strong{color:#111;}
+.act-time{font-size:11px;color:#9ca3af;white-space:nowrap;flex-shrink:0;}
+
+/* GATES */
 .gates{background:#fff;border-bottom:1px solid #e0e4ea;padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .gate-lbl{font-size:10px;color:#6b7280;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
 .gate{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;}
 .gate.red{background:#FEE2E2;color:#991b1b;border:1px solid #FECACA;}
 .gate.amber{background:#FEF3C7;color:#92400e;border:1px solid #FDE68A;}
+
+/* MAIN */
 main{max-width:1020px;margin:0 auto;padding:16px 14px 60px;}
 .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:16px;}
 .met{background:#fff;border:1px solid #e0e4ea;border-radius:10px;padding:11px 14px;}
@@ -30,6 +64,8 @@ main{max-width:1020px;margin:0 auto;padding:16px 14px 60px;}
 .fbtn{font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;transition:all .15s;white-space:nowrap;}
 .fbtn:hover{background:#f3f4f6;}
 .fbtn.on{background:#0C447C;color:#fff;border-color:#0C447C;}
+
+/* PHASE CARDS */
 .card{background:#fff;border:1px solid #e0e4ea;border-radius:12px;margin-bottom:10px;overflow:hidden;}
 .card-head{display:flex;align-items:stretch;cursor:pointer;user-select:none;}
 .card-head:hover{background:#fafbfd;}
@@ -42,15 +78,18 @@ main{max-width:1020px;margin:0 auto;padding:16px 14px 60px;}
 .ph-pbar{width:60px;height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden;}
 .ph-pfill{height:100%;border-radius:3px;transition:width .3s;}
 .ph-pct{font-size:12px;color:#6b7280;min-width:30px;text-align:right;}
-.chevron{padding:12px 14px;font-size:22px;color:#9ca3af;transition:transform .2s;display:flex;align-items:center;flex-shrink:0;}
+.chevron{padding:12px 14px;font-size:20px;color:#9ca3af;transition:transform .2s;display:flex;align-items:center;flex-shrink:0;}
 .card-body{display:none;border-top:1px solid #f0f2f5;}
 .card-body.open{display:block;}
+
+/* TASK TABLE */
 table.tt{width:100%;border-collapse:collapse;table-layout:fixed;}
-table.tt th{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;padding:7px 12px;background:#f8f9fb;border-bottom:1px solid #e9ecef;text-align:left;}
-table.tt th:nth-child(1){width:36px;}
-table.tt th:nth-child(3){width:150px;}
-table.tt th:nth-child(4){width:126px;}
-table.tt th:nth-child(5){width:38px;}
+table.tt th{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;padding:7px 10px;background:#f8f9fb;border-bottom:1px solid #e9ecef;text-align:left;}
+table.tt th:nth-child(1){width:34px;}
+table.tt th:nth-child(3){width:120px;}
+table.tt th:nth-child(4){width:106px;}
+table.tt th:nth-child(5){width:118px;}
+table.tt th:nth-child(6){width:72px;}
 .trow{border-bottom:1px solid #f0f2f5;}
 .trow:last-child{border-bottom:none;}
 .trow:hover{background:#fafbfc;}
@@ -58,26 +97,78 @@ table.tt th:nth-child(5){width:38px;}
 .trow.done .ttext{text-decoration:line-through;color:#9ca3af;}
 .trow.crit{background:#fff8f8;}
 .trow.crit .ttext{color:#991b1b;}
-td{padding:8px 12px;vertical-align:middle;}
-.chkcell{width:36px;text-align:center;}
+.trow.overdue{border-left:3px solid #F59E0B;}
+td{padding:7px 10px;vertical-align:middle;}
+.chkcell{width:34px;text-align:center;padding:7px 4px;}
 .chkcell input{width:16px;height:16px;cursor:pointer;accent-color:#0C447C;}
 .ttext{font-size:13px;line-height:1.5;word-break:break-word;}
-.cpill{display:inline-block;font-size:10px;font-weight:700;background:#FEE2E2;color:#991b1b;border-radius:4px;padding:1px 5px;margin-right:5px;vertical-align:middle;white-space:nowrap;}
+.cpill{display:inline-block;font-size:10px;font-weight:700;background:#FEE2E2;color:#991b1b;border-radius:4px;padding:1px 5px;margin-right:4px;vertical-align:middle;white-space:nowrap;}
 .otag{display:inline-block;font-size:11px;background:#EFF6FF;color:#1e40af;border-radius:4px;padding:2px 7px;font-weight:500;white-space:nowrap;}
-.ssel{font-size:12px;border:1px solid #e0e4ea;border-radius:5px;padding:3px 5px;background:#fff;cursor:pointer;outline:none;color:#374151;width:100%;}
+.ssel{font-size:12px;border:1px solid #e0e4ea;border-radius:5px;padding:3px 4px;background:#fff;cursor:pointer;outline:none;color:#374151;width:100%;}
 .ssel:focus{border-color:#0C447C;}
-.nbtn{background:#fff;border:1px solid #e0e4ea;border-radius:5px;padding:3px 8px;cursor:pointer;font-size:12px;color:#9ca3af;transition:all .15s;}
-.nbtn:hover{background:#f3f4f6;}
-.nbtn.has{background:#EFF6FF;border-color:#93c5fd;color:#1d4ed8;}
+.due-inp{font-size:11px;border:1px solid #e0e4ea;border-radius:5px;padding:3px 4px;background:#fff;outline:none;color:#374151;width:100%;}
+.due-inp:focus{border-color:#0C447C;}
+.due-inp.overdue{color:#991b1b;border-color:#FECACA;background:#FFF8F8;}
+.actions-cell{display:flex;align-items:center;gap:3px;}
+.icon-btn{background:#fff;border:1px solid #e0e4ea;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:12px;color:#9ca3af;transition:all .15s;line-height:1.4;}
+.icon-btn:hover{background:#f3f4f6;color:#374151;}
+.icon-btn.has-note{background:#EFF6FF;border-color:#93c5fd;color:#1d4ed8;}
+.icon-btn.has-att{background:#F0FDF4;border-color:#86efac;color:#15803d;}
+.icon-btn.del{color:#FCA5A5;}
+.icon-btn.del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991b1b;}
+
+/* NOTE / COMMENT EXPANSION */
 .nrow{display:none;background:#f8faff;}
 .nrow.open{display:table-row;}
-.ninp{width:100%;font-size:12px;border:1px solid #e0e4ea;border-radius:6px;padding:5px 8px;resize:vertical;min-height:42px;font-family:inherit;color:#374151;outline:none;}
-.ninp:focus{border-color:#0C447C;}
+.nrow-inner{padding:10px 14px 14px 36px;}
+.note-section-lbl{font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+.note-textarea{width:100%;font-size:12px;border:1px solid #e0e4ea;border-radius:6px;padding:6px 9px;min-height:38px;resize:vertical;font-family:inherit;color:#374151;outline:none;background:#fff;margin-bottom:10px;}
+.note-textarea:focus{border-color:#0C447C;}
+
+/* ATTACHMENTS */
+.att-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.att-chip{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid #e0e4ea;border-radius:6px;padding:4px 8px;font-size:11px;color:#374151;text-decoration:none;}
+.att-chip:hover{background:#f3f4f6;}
+.att-img{width:52px;height:52px;object-fit:cover;border-radius:5px;cursor:pointer;border:1px solid #e0e4ea;}
+.upload-zone{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border:1px dashed #d1d5db;border-radius:6px;cursor:pointer;font-size:12px;color:#6b7280;background:#fff;transition:all .15s;margin-bottom:10px;}
+.upload-zone:hover{border-color:#0C447C;color:#0C447C;background:#EFF6FF;}
+.upload-zone input{display:none;}
+
+/* COMMENTS */
+.comments-wrap{margin-top:4px;}
+.comment-item{display:flex;gap:8px;margin-bottom:8px;}
+.cmt-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.cmt-bubble{background:#fff;border:1px solid #e0e4ea;border-radius:8px;border-top-left-radius:2px;padding:7px 10px;flex:1;}
+.cmt-meta{font-size:10px;color:#9ca3af;margin-bottom:2px;}
+.cmt-meta strong{color:#374151;}
+.cmt-body{font-size:12px;color:#111;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.cmt-input-row{display:flex;gap:6px;margin-top:8px;}
+.cmt-inp{flex:1;font-size:12px;border:1px solid #e0e4ea;border-radius:6px;padding:6px 9px;font-family:inherit;color:#374151;outline:none;resize:none;min-height:34px;}
+.cmt-inp:focus{border-color:#0C447C;}
+.cmt-send{background:#0C447C;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:12px;font-weight:600;}
+.cmt-send:hover{background:#185FA5;}
+.no-supabase-note{font-size:11px;color:#9ca3af;margin-top:6px;font-style:italic;}
+
+/* ADD TASK */
+.add-task-toggle{font-size:12px;color:#6b7280;cursor:pointer;padding:7px 14px;display:flex;align-items:center;gap:5px;background:#f8f9fb;border-top:1px solid #f0f2f5;transition:color .15s;}
+.add-task-toggle:hover{color:#0C447C;}
+.add-task-row{padding:8px 12px;border-top:1px solid #e8ecf0;display:flex;align-items:center;gap:6px;background:#EFF6FF;flex-wrap:wrap;}
+.add-tx-inp{flex:1;min-width:200px;font-size:12px;border:1px solid #bfdbfe;border-radius:6px;padding:5px 9px;font-family:inherit;outline:none;color:#374151;background:#fff;}
+.add-tx-inp:focus{border-color:#0C447C;}
+.add-ow-inp{width:110px;font-size:12px;border:1px solid #bfdbfe;border-radius:6px;padding:5px 9px;font-family:inherit;outline:none;color:#374151;background:#fff;}
+.add-cr-lbl{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer;}
+.add-save-btn{background:#0C447C;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;font-weight:600;}
+.add-save-btn:hover{background:#185FA5;}
+.add-cancel-btn{background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;color:#6b7280;}
+
+/* PHASE NOTES */
 .pnotes-wrap{padding:10px 14px;background:#f8f9fb;border-top:1px solid #f0f2f5;}
 .pnotes-wrap label{font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:4px;}
 .pnotes-wrap textarea{width:100%;font-size:12px;border:1px solid #e0e4ea;border-radius:6px;padding:6px 8px;min-height:44px;resize:vertical;font-family:inherit;color:#374151;outline:none;background:#fff;}
 .pnotes-wrap textarea:focus{border-color:#0C447C;}
 .no-tasks{padding:14px 16px;color:#9ca3af;font-size:13px;font-style:italic;}
+
+/* SECTIONS */
 .sec{font-size:13px;font-weight:700;color:#374151;margin:20px 0 10px;display:flex;align-items:center;gap:8px;}
 .sec::after{content:'';flex:1;height:1px;background:#e5e7eb;}
 .rtbl{width:100%;border-collapse:collapse;font-size:13px;}
@@ -87,24 +178,163 @@ td{padding:8px 12px;vertical-align:middle;}
 .rtbl tr:last-child td{background:#d1fae5;font-weight:600;color:#065f46;border-bottom:none;}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:10px;}
 .ccard{background:#fff;border:1px solid #e0e4ea;border-radius:8px;padding:11px 13px;display:flex;align-items:flex-start;gap:10px;}
-.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.cav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .cn{font-size:13px;font-weight:600;color:#111;}
-.cr{font-size:11px;color:#6b7280;margin-top:1px;line-height:1.4;}
+.crl{font-size:11px;color:#6b7280;margin-top:1px;line-height:1.4;}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:#fff;border-radius:14px;padding:26px 22px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto;}
+.modal h2{font-size:18px;font-weight:700;color:#111;margin-bottom:5px;}
+.modal-sub{font-size:13px;color:#6b7280;margin-bottom:16px;line-height:1.5;}
+.user-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+.user-btn{display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid #e0e4ea;border-radius:8px;cursor:pointer;background:#fff;text-align:left;transition:all .15s;width:100%;}
+.user-btn:hover{border-color:#0C447C;background:#EFF6FF;}
+.user-btn .ubav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.user-btn .ub-name{font-size:13px;font-weight:600;color:#111;line-height:1.2;}
+.user-btn .ub-role{font-size:10px;color:#6b7280;}
+.modal-divider{text-align:center;font-size:11px;color:#9ca3af;margin:12px 0;}
+.modal-row{display:flex;gap:8px;margin-bottom:8px;}
+.modal-inp{flex:1;font-size:13px;border:1px solid #e0e4ea;border-radius:8px;padding:8px 11px;outline:none;font-family:inherit;}
+.modal-inp:focus{border-color:#0C447C;}
+.modal-btn{background:#0C447C;color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;}
+.modal-btn:hover{background:#185FA5;}
+.modal-skip{width:100%;margin-top:8px;padding:7px;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;font-size:13px;color:#6b7280;}
+
+/* SETUP MODAL */
+.setup-modal .modal{max-width:580px;}
+.setup-lbl{font-size:12px;font-weight:600;color:#374151;margin:10px 0 4px;}
+.setup-inp{width:100%;font-size:12px;border:1px solid #e0e4ea;border-radius:7px;padding:7px 10px;outline:none;font-family:monospace;margin-bottom:2px;}
+.setup-inp:focus{border-color:#0C447C;}
+.setup-sql{background:#1e293b;color:#e2e8f0;border-radius:8px;padding:10px 12px;font-size:10.5px;overflow-x:auto;margin:5px 0 12px;line-height:1.7;white-space:pre;font-family:monospace;}
+.setup-save-btn{width:100%;margin-top:10px;padding:10px;background:#0C447C;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;}
+.setup-save-btn:hover{background:#185FA5;}
+
+/* IMG PREVIEW */
+#img-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
+#img-modal img{max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
 </style>
 </head>
 <body>
 
+<!-- USER MODAL -->
+<div id="user-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <h2>👋 Who are you?</h2>
+    <p class="modal-sub">Your name shows up on comments and the activity log so the team knows who did what.</p>
+    <div class="user-grid" id="user-grid"></div>
+    <div class="modal-divider">— or type your name —</div>
+    <div class="modal-row">
+      <input class="modal-inp" id="custom-name-inp" placeholder="Your name..." onkeydown="if(event.key==='Enter')confirmCustomUser()" />
+      <button class="modal-btn" onclick="confirmCustomUser()">Go</button>
+    </div>
+    <button class="modal-skip" onclick="closeUserModal()">Skip for now</button>
+  </div>
+</div>
+
+<!-- SETUP MODAL -->
+<div id="setup-modal" class="modal-overlay setup-modal" style="display:none">
+  <div class="modal">
+    <h2>⚡ Connect Supabase</h2>
+    <p class="modal-sub">Free shared database — all team members see updates in real time. <a href="https://supabase.com" target="_blank" style="color:#0C447C">Create a project at supabase.com</a>, then paste your credentials below.</p>
+
+    <div class="setup-lbl">1. Run this SQL in Supabase → SQL Editor:</div>
+    <div class="setup-sql">create table if not exists task_state (
+  task_id text primary key, done boolean default false,
+  status text default 'Not started', note text default '',
+  due_date date, updated_at timestamptz default now(), updated_by text
+);
+create table if not exists phase_notes (
+  phase_id text primary key, note text default '',
+  updated_at timestamptz default now()
+);
+create table if not exists custom_tasks (
+  id text primary key, phase_id text not null,
+  tx text not null, ow text default '', cr boolean default false,
+  created_at timestamptz default now(), created_by text
+);
+create table if not exists comments (
+  id text primary key, task_id text not null,
+  author text not null, body text not null,
+  created_at timestamptz default now()
+);
+create table if not exists activity_log (
+  id text primary key, task_id text, phase_id text,
+  action text not null, author text, detail text,
+  created_at timestamptz default now()
+);
+create table if not exists attachments (
+  id text primary key, task_id text not null,
+  filename text not null, storage_path text not null,
+  file_type text, file_size int,
+  created_at timestamptz default now()
+);
+alter table task_state disable row level security;
+alter table phase_notes disable row level security;
+alter table custom_tasks disable row level security;
+alter table comments disable row level security;
+alter table activity_log disable row level security;
+alter table attachments disable row level security;
+alter table task_state replica identity full;
+alter table comments replica identity full;
+alter table activity_log replica identity full;
+alter table custom_tasks replica identity full;
+alter table attachments replica identity full;</div>
+
+    <div class="setup-lbl">2. In Storage → Buckets: create bucket named <code style="background:#f3f4f6;padding:1px 5px;border-radius:3px">task-attachments</code> with Public access on.</div>
+
+    <div class="setup-lbl">3. Project URL (Settings → API → Project URL):</div>
+    <input class="setup-inp" id="sb-url-inp" type="text" placeholder="https://xxxxxxxxxxxxxxxxxxxx.supabase.co" />
+
+    <div class="setup-lbl">4. Anon / public key (Settings → API → anon public):</div>
+    <input class="setup-inp" id="sb-key-inp" type="text" placeholder="eyJhbGci..." />
+
+    <button class="setup-save-btn" onclick="saveSupabaseConfig()">Save &amp; Connect</button>
+    <button class="modal-skip" onclick="closeSetup()">Skip — use local-only mode</button>
+  </div>
+</div>
+
+<!-- IMAGE PREVIEW -->
+<div id="img-modal" onclick="this.style.display='none'">
+  <img id="img-preview-el" />
+</div>
+
+<!-- HEADER -->
 <header>
   <div>
     <h1>BESS Installation Master Plan — Spuncast, Inc.</h1>
     <p>Docket 9709-FG-2026 &nbsp;|&nbsp; 2× Generac SBE Cabinet — 1 MW / 2,752 kWh &nbsp;|&nbsp; Target: ~$107,000/yr savings</p>
   </div>
-  <div class="prog-wrap">
-    <div class="prog-bar"><div class="prog-fill" id="gfill"></div></div>
-    <span class="prog-lbl" id="glbl">0% complete</span>
+  <div class="header-right">
+    <div class="prog-wrap">
+      <div class="prog-bar"><div class="prog-fill" id="gfill"></div></div>
+      <span class="prog-lbl" id="glbl">0% complete</span>
+    </div>
+    <div class="user-chip" onclick="showUserModal()" title="Change user">
+      <div class="uav" id="user-av">?</div>
+      <span id="user-name-lbl">Set name</span>
+    </div>
   </div>
 </header>
 
+<!-- SETUP BANNER -->
+<div id="setup-banner" style="display:none" class="setup-banner">
+  <strong>💾 Local only</strong>
+  <p>Changes are saved in your browser. Connect Supabase so the whole team sees updates live.</p>
+  <button onclick="showSetup()">Connect Supabase</button>
+</div>
+
+<!-- ACTIVITY STRIP -->
+<div class="activity-strip">
+  <div class="activity-head" onclick="toggleActivity()">
+    <span class="activity-head-lbl">Activity</span>
+    <div class="activity-preview" id="act-preview"><span class="act-pill" style="color:#9ca3af">No activity yet</span></div>
+    <span style="font-size:11px;color:#9ca3af;margin-left:6px" id="act-chevron">▼</span>
+  </div>
+  <div class="activity-body" id="act-body"></div>
+</div>
+
+<!-- GATES -->
 <div class="gates">
   <span class="gate-lbl">Critical gates</span>
   <span class="gate red">⏰ June 26, 2026 @ 1:30 PM CT — OEI Grant submission</span>
@@ -119,9 +349,10 @@ td{padding:8px 12px;vertical-align:middle;}
     <button class="fbtn on" onclick="setFilter('all',this)">All phases</button>
     <button class="fbtn" onclick="setFilter('open',this)">Open tasks</button>
     <button class="fbtn" onclick="setFilter('critical',this)">Critical only</button>
-    <button class="fbtn" onclick="setFilter('adam',this)">Adam's tasks</button>
-    <button class="fbtn" onclick="setFilter('pete',this)">Pete's tasks</button>
-    <button class="fbtn" onclick="setFilter('andy',this)">Andy's tasks</button>
+    <button class="fbtn" onclick="setFilter('overdue',this)">Overdue</button>
+    <button class="fbtn" onclick="setFilter('adam',this)">Adam's</button>
+    <button class="fbtn" onclick="setFilter('pete',this)">Pete's</button>
+    <button class="fbtn" onclick="setFilter('andy',this)">Andy's</button>
   </div>
   <div id="PH"></div>
 
@@ -139,6 +370,11 @@ td{padding:8px 12px;vertical-align:middle;}
 </main>
 
 <script>
+/* ================================================================
+   BESS TRACKER — SPUNCAST  |  Supabase-powered team workspace
+   ================================================================ */
+
+/* ---------- PHASE + CONTACT DATA ---------- */
 var PH=[
   {id:'p1',num:'Phase 1',name:'Pre-Construction: Permits, Utility & Incentive Sequencing',tl:'Now to Grant Award',ow:'Adam',col:'#185FA5',bg:'#E6F1FB',tasks:[
     {id:'p1t1',tx:'Submit OEI EIGP Round 6 grant by June 26, 2026 at 1:30 PM CT',ow:'Adam',cr:1},
@@ -238,84 +474,501 @@ var CT=[
   {n:'Rob Bellile',r:'Baker Tilly - ITC / Tax Equity',a:'Finance - ITC monetization',i:'RB',c:'#712B13'}
 ];
 
-// Pure in-memory state - works in any iframe, any host
-var done={}, status={}, notes={}, pnotes={}, open={p1:true};
-var activeFilter='all';
+/* ---------- CONFIG ---------- */
+var SUPABASE_URL = localStorage.getItem('sb_url') || 'https://lfmjfqlscsezgubniclg.supabase.co';
+var SUPABASE_KEY = localStorage.getItem('sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmbWpmcWxzY3Nlemd1Ym5pY2xnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjYyNjksImV4cCI6MjA5NjQwMjI2OX0.MecPdeQ-kxeeMk0g-mt2OfYA7BYfhiWNJot-PM-y5qY';
 
-function tot(){return PH.reduce(function(a,p){return a+p.tasks.length;},0);}
-function doneCount(){return PH.reduce(function(a,p){return a+p.tasks.filter(function(t){return done[t.id];}).length;},0);}
-function critOpen(){return PH.reduce(function(a,p){return a+p.tasks.filter(function(t){return t.cr&&!done[t.id];}).length;},0);}
-function phasePct(p){var d=p.tasks.filter(function(t){return done[t.id];}).length;return p.tasks.length?Math.round(d/p.tasks.length*100):0;}
+/* ---------- STATE ---------- */
+var db = null;
+var currentUser = localStorage.getItem('bess_user') || '';
+var done={}, taskStatus={}, taskNote={}, pnotes={}, dueDate={};
+var commentMap={}, attachMap={}, customTaskMap={};
+var activityLog=[];
+var openPhase={p1:true};
+var activeFilter='all';
+var activityOpen=false;
+
+/* ---------- UTILS ---------- */
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function initials(name){return (name||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase()||'?';}
+function userColor(name){
+  var n=(name||'').toLowerCase();
+  var found=CT.find(function(c){return c.n.toLowerCase().indexOf(n.split(' ')[0])>=0;});
+  return found?found.c:'#6b7280';
+}
+function relTime(ts){
+  if(!ts)return '';
+  var diff=(Date.now()-new Date(ts).getTime())/1000;
+  if(diff<60)return 'just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+function isOverdue(id){
+  var d=dueDate[id];
+  if(!d||done[id])return false;
+  return new Date(d)<new Date(new Date().toDateString());
+}
+function allTasks(p){
+  return p.tasks.concat(customTaskMap[p.id]||[]);
+}
+function findTask(id){
+  for(var i=0;i<PH.length;i++){
+    var ts=allTasks(PH[i]);
+    for(var j=0;j<ts.length;j++){if(ts[j].id===id)return ts[j];}
+  }
+  return null;
+}
+function findPhase(taskId){
+  for(var i=0;i<PH.length;i++){
+    if(allTasks(PH[i]).some(function(t){return t.id===taskId;}))return PH[i].id;
+  }
+  return null;
+}
+
+/* ---------- SUPABASE ---------- */
+async function initDB(){
+  if(!SUPABASE_URL||!SUPABASE_KEY){
+    document.getElementById('setup-banner').style.display='flex';
+    return;
+  }
+  try{
+    db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    await loadAll();
+    subscribeRealtime();
+  }catch(e){
+    console.error('Supabase error:',e);
+    document.getElementById('setup-banner').style.display='flex';
+  }
+}
+
+async function loadAll(){
+  var r;
+  r=await db.from('task_state').select('*');
+  if(r.data)r.data.forEach(function(x){
+    done[x.task_id]=x.done; taskStatus[x.task_id]=x.status;
+    taskNote[x.task_id]=x.note||''; dueDate[x.task_id]=x.due_date||'';
+  });
+
+  r=await db.from('phase_notes').select('*');
+  if(r.data)r.data.forEach(function(x){pnotes[x.phase_id]=x.note||'';});
+
+  r=await db.from('custom_tasks').select('*').order('created_at');
+  if(r.data)r.data.forEach(function(x){
+    if(!customTaskMap[x.phase_id])customTaskMap[x.phase_id]=[];
+    customTaskMap[x.phase_id].push({id:x.id,tx:x.tx,ow:x.ow||'',cr:!!x.cr,custom:true});
+  });
+
+  r=await db.from('comments').select('*').order('created_at');
+  if(r.data)r.data.forEach(function(x){
+    if(!commentMap[x.task_id])commentMap[x.task_id]=[];
+    commentMap[x.task_id].push(x);
+  });
+
+  r=await db.from('activity_log').select('*').order('created_at',{ascending:false}).limit(40);
+  if(r.data)activityLog=r.data;
+
+  r=await db.from('attachments').select('*').order('created_at');
+  if(r.data)r.data.forEach(function(x){
+    if(!attachMap[x.task_id])attachMap[x.task_id]=[];
+    attachMap[x.task_id].push(x);
+  });
+
+  rebuild();buildActivityFeed();
+}
+
+function subscribeRealtime(){
+  db.channel('bess-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'task_state'},function(p){
+      var x=p.new;
+      if(x&&x.task_id){
+        done[x.task_id]=x.done; taskStatus[x.task_id]=x.status;
+        taskNote[x.task_id]=x.note||''; dueDate[x.task_id]=x.due_date||'';
+        rebuild();
+      }
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'comments'},function(p){
+      var x=p.new;
+      if(!commentMap[x.task_id])commentMap[x.task_id]=[];
+      commentMap[x.task_id].push(x);
+      refreshNoteInner(x.task_id);
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'activity_log'},function(p){
+      activityLog.unshift(p.new);
+      if(activityLog.length>40)activityLog.pop();
+      buildActivityFeed();
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'custom_tasks'},function(p){
+      var x=p.new;
+      if(!customTaskMap[x.phase_id])customTaskMap[x.phase_id]=[];
+      if(!customTaskMap[x.phase_id].some(function(t){return t.id===x.id;})){
+        customTaskMap[x.phase_id].push({id:x.id,tx:x.tx,ow:x.ow||'',cr:!!x.cr,custom:true});
+        rebuild();
+      }
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'custom_tasks'},function(p){
+      var x=p.old;
+      if(x&&customTaskMap[x.phase_id]){
+        customTaskMap[x.phase_id]=customTaskMap[x.phase_id].filter(function(t){return t.id!==x.id;});
+        rebuild();
+      }
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'attachments'},function(p){
+      var x=p.new;
+      if(!attachMap[x.task_id])attachMap[x.task_id]=[];
+      attachMap[x.task_id].push(x);
+      refreshNoteInner(x.task_id);
+    })
+    .subscribe();
+}
+
+async function saveTaskState(id){
+  var payload={task_id:id,done:!!done[id],status:taskStatus[id]||'Not started',
+    note:taskNote[id]||'',due_date:dueDate[id]||null,
+    updated_at:new Date().toISOString(),updated_by:currentUser||null};
+  if(db)await db.from('task_state').upsert(payload,{onConflict:'task_id'});
+  else{
+    // localStorage fallback
+    var ls=JSON.parse(localStorage.getItem('bess_state')||'{}');
+    ls[id]=payload; localStorage.setItem('bess_state',JSON.stringify(ls));
+  }
+}
+async function savePNote(pid){
+  if(db)await db.from('phase_notes').upsert({phase_id:pid,note:pnotes[pid]||'',updated_at:new Date().toISOString()},{onConflict:'phase_id'});
+  else{
+    var ls=JSON.parse(localStorage.getItem('bess_pnotes')||'{}');
+    ls[pid]=pnotes[pid]||''; localStorage.setItem('bess_pnotes',JSON.stringify(ls));
+  }
+}
+function logActivity(taskId,action,detail){
+  var entry={id:uid(),task_id:taskId,action:action,author:currentUser||'Someone',detail:detail,created_at:new Date().toISOString()};
+  activityLog.unshift(entry);
+  if(activityLog.length>40)activityLog.pop();
+  buildActivityFeed();
+  if(db)db.from('activity_log').insert(entry);
+}
+async function addComment(taskId,body){
+  if(!body.trim())return;
+  var c={id:uid(),task_id:taskId,author:currentUser||'Anonymous',body:body.trim(),created_at:new Date().toISOString()};
+  if(!commentMap[taskId])commentMap[taskId]=[];
+  commentMap[taskId].push(c);
+  refreshNoteInner(taskId);
+  logActivity(taskId,'comment',(currentUser||'Someone')+' commented on "'+((findTask(taskId)||{}).tx||taskId).slice(0,50)+'"');
+  if(db)await db.from('comments').insert(c);
+}
+async function uploadFile(taskId,file){
+  if(!db){alert('Connect Supabase to enable file uploads.');return;}
+  var ext=(file.name.split('.').pop()||'').toLowerCase();
+  var path='attachments/'+taskId+'/'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  var up=await db.storage.from('task-attachments').upload(path,file,{upsert:false});
+  if(up.error){alert('Upload failed: '+up.error.message);return;}
+  var pub=db.storage.from('task-attachments').getPublicUrl(path);
+  var url=pub.data.publicUrl;
+  var att={id:uid(),task_id:taskId,filename:file.name,storage_path:url,file_type:ext,file_size:file.size,created_at:new Date().toISOString()};
+  if(!attachMap[taskId])attachMap[taskId]=[];
+  attachMap[taskId].push(att);
+  await db.from('attachments').insert(att);
+  logActivity(taskId,'attachment',(currentUser||'Someone')+' attached "'+file.name+'"');
+  refreshNoteInner(taskId);
+}
+async function addCustomTask(phaseId,tx,ow,cr){
+  var t={id:uid(),phase_id:phaseId,tx:tx.trim(),ow:ow||'',cr:!!cr,created_by:currentUser||null,created_at:new Date().toISOString()};
+  if(!customTaskMap[phaseId])customTaskMap[phaseId]=[];
+  customTaskMap[phaseId].push({id:t.id,tx:t.tx,ow:t.ow,cr:t.cr,custom:true});
+  rebuild();
+  logActivity(t.id,'add_task',(currentUser||'Someone')+' added task "'+tx.trim().slice(0,60)+'"');
+  if(db)await db.from('custom_tasks').insert(t);
+}
+async function deleteCustomTask(pid,tid){
+  if(!confirm('Delete this task?'))return;
+  if(customTaskMap[pid])customTaskMap[pid]=customTaskMap[pid].filter(function(t){return t.id!==tid;});
+  rebuild();
+  if(db)await db.from('custom_tasks').delete().eq('id',tid);
+}
+
+/* ---------- LOCAL STORAGE FALLBACK ---------- */
+function loadLocalState(){
+  try{
+    var ls=JSON.parse(localStorage.getItem('bess_state')||'{}');
+    Object.keys(ls).forEach(function(id){
+      var x=ls[id];
+      done[id]=x.done; taskStatus[id]=x.status;
+      taskNote[id]=x.note||''; dueDate[id]=x.due_date||'';
+    });
+    var pn=JSON.parse(localStorage.getItem('bess_pnotes')||'{}');
+    Object.keys(pn).forEach(function(pid){pnotes[pid]=pn[pid];});
+    var ct=JSON.parse(localStorage.getItem('bess_custom')||'{}');
+    Object.keys(ct).forEach(function(pid){customTaskMap[pid]=ct[pid];});
+  }catch(e){}
+}
+
+/* ---------- USER ---------- */
+function buildUserModal(){
+  document.getElementById('user-grid').innerHTML=CT.map(function(c){
+    return '<button class="user-btn" onclick="setUser(\''+esc(c.n)+'\')"><div class="ubav" style="background:'+c.c+'20;color:'+c.c+'">'+c.i+'</div>'
+      +'<div><div class="ub-name">'+esc(c.n.split(' ')[0])+'</div><div class="ub-role">'+esc(c.r.split('-')[0].trim())+'</div></div></button>';
+  }).join('');
+}
+function showUserModal(){document.getElementById('user-modal').style.display='flex';}
+function closeUserModal(){document.getElementById('user-modal').style.display='none';}
+function confirmCustomUser(){setUser(document.getElementById('custom-name-inp').value);}
+function setUser(name){
+  if(!name||!name.trim())return;
+  currentUser=name.trim();
+  localStorage.setItem('bess_user',currentUser);
+  closeUserModal();
+  updateUserChip();
+}
+function updateUserChip(){
+  var av=document.getElementById('user-av');
+  var lbl=document.getElementById('user-name-lbl');
+  if(currentUser){
+    av.textContent=initials(currentUser);
+    av.style.background=userColor(currentUser)+'55';
+    lbl.textContent=currentUser.split(' ')[0];
+  }else{
+    av.textContent='?';av.style.background='';lbl.textContent='Set name';
+  }
+}
+
+/* ---------- SETUP ---------- */
+function showSetup(){document.getElementById('setup-modal').style.display='flex';}
+function closeSetup(){document.getElementById('setup-modal').style.display='none';}
+function saveSupabaseConfig(){
+  var url=(document.getElementById('sb-url-inp').value||'').trim();
+  var key=(document.getElementById('sb-key-inp').value||'').trim();
+  if(!url||!key){alert('Enter both URL and key.');return;}
+  localStorage.setItem('sb_url',url);localStorage.setItem('sb_key',key);
+  SUPABASE_URL=url;SUPABASE_KEY=key;
+  closeSetup();
+  document.getElementById('setup-banner').style.display='none';
+  db=null; initDB();
+}
+
+/* ---------- ACTIVITY FEED ---------- */
+function buildActivityFeed(){
+  var prev=document.getElementById('act-preview');
+  var body=document.getElementById('act-body');
+  if(!activityLog.length){
+    prev.innerHTML='<span class="act-pill" style="color:#9ca3af">No activity yet</span>';
+    body.innerHTML='<div style="padding:10px;color:#9ca3af;font-size:12px">Nothing logged yet.</div>';
+    return;
+  }
+  prev.innerHTML=activityLog.slice(0,3).map(function(a){
+    return '<span class="act-pill"><span class="act-who">'+esc(a.author||'?')+'</span>&nbsp;'+esc((a.detail||a.action).slice(0,44))+'&nbsp;<span style="color:#9ca3af">'+relTime(a.created_at)+'</span></span>';
+  }).join('');
+  body.innerHTML='<div style="padding:0 0 0 0">'+activityLog.map(function(a){
+    return '<div class="act-row"><div class="act-dot"></div><div class="act-body"><strong>'+esc(a.author||'?')+'</strong> — '+esc(a.detail||a.action)+'</div><div class="act-time">'+relTime(a.created_at)+'</div></div>';
+  }).join('')+'</div>';
+}
+function toggleActivity(){
+  activityOpen=!activityOpen;
+  document.getElementById('act-body').classList.toggle('open',activityOpen);
+  document.getElementById('act-chevron').textContent=activityOpen?'▲':'▼';
+}
+
+/* ---------- CALCULATIONS ---------- */
+function tot(){return PH.reduce(function(a,p){return a+allTasks(p).length;},0);}
+function doneCount(){return PH.reduce(function(a,p){return a+allTasks(p).filter(function(t){return done[t.id];}).length;},0);}
+function critOpen(){return PH.reduce(function(a,p){return a+allTasks(p).filter(function(t){return t.cr&&!done[t.id];}).length;},0);}
+function overdueCount(){return PH.reduce(function(a,p){return a+allTasks(p).filter(function(t){return isOverdue(t.id);}).length;},0);}
+function phasePct(p){var ts=allTasks(p);var d=ts.filter(function(t){return done[t.id];}).length;return ts.length?Math.round(d/ts.length*100):0;}
 function activePhasesCount(){return PH.filter(function(p){var pc=phasePct(p);return pc>0&&pc<100;}).length;}
 
+/* ---------- FILTER ---------- */
 function visible(t){
   if(activeFilter==='all')return true;
   if(activeFilter==='open')return !done[t.id];
   if(activeFilter==='critical')return !!t.cr;
-  var o=t.ow.toLowerCase();
+  if(activeFilter==='overdue')return isOverdue(t.id);
+  var o=(t.ow||'').toLowerCase();
   if(activeFilter==='adam')return o.indexOf('adam')>=0;
   if(activeFilter==='pete')return o.indexOf('pete')>=0;
   if(activeFilter==='andy')return o.indexOf('andy')>=0;
   return true;
 }
-
 function setFilter(f,btn){
   activeFilter=f;
   document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');
-  buildPhases();
+  btn.classList.add('on');buildPhases();
 }
 
+/* ---------- TASK ACTIONS ---------- */
 function toggleDone(id){
   done[id]=!done[id];
-  if(done[id]&&(!status[id]||status[id]==='Not started'))status[id]='Done';
-  if(!done[id]&&status[id]==='Done')status[id]='In progress';
-  rebuild();
+  if(done[id]){taskStatus[id]='Done';}
+  else if(taskStatus[id]==='Done'){taskStatus[id]='In progress';}
+  var t=findTask(id);
+  logActivity(id,done[id]?'complete':'reopen',(currentUser||'Someone')+' '+(done[id]?'completed':'reopened')+' "'+(t?t.tx.slice(0,55):id)+'"');
+  saveTaskState(id);rebuild();
 }
 function setStatus(id,v){
-  status[id]=v;
-  done[id]=(v==='Done');
-  rebuild();
+  taskStatus[id]=v;done[id]=(v==='Done');
+  var t=findTask(id);
+  logActivity(id,'status',(currentUser||'Someone')+' set "'+(t?t.tx.slice(0,40):id)+'" → '+v);
+  saveTaskState(id);rebuild();
 }
-function setNote(id,v){notes[id]=v;updateNB(id);}
-function setPNote(pid,v){pnotes[pid]=v;}
-function updateNB(id){var b=document.getElementById('nb'+id);if(b)b.className='nbtn'+(notes[id]?' has':'');}
-function toggleNote(id){var r=document.getElementById('nr'+id);if(r)r.classList.toggle('open');}
+function setNote(id,v){taskNote[id]=v;saveTaskState(id);}
+function setDue(id,v){
+  dueDate[id]=v;
+  saveTaskState(id);
+  var row=document.getElementById('trow'+id);
+  var inp=document.getElementById('due'+id);
+  var t=findTask(id);
+  var od=isOverdue(id);
+  if(row)row.className='trow'+(done[id]?' done':'')+(t&&t.cr&&!done[id]?' crit':'')+(od?' overdue':'');
+  if(inp)inp.className='due-inp'+(od?' overdue':'');
+}
+function setPNote(pid,v){pnotes[pid]=v;savePNote(pid);}
+function toggleNote(id){
+  var nr=document.getElementById('nr'+id);
+  if(!nr)return;
+  nr.classList.toggle('open');
+  if(nr.classList.contains('open'))refreshNoteInner(id);
+}
 function togglePhase(pid){
-  open[pid]=!open[pid];
+  openPhase[pid]=!openPhase[pid];
   var b=document.getElementById('pb'+pid),c=document.getElementById('ch'+pid);
-  if(b)b.classList.toggle('open',!!open[pid]);
-  if(c)c.style.transform=open[pid]?'rotate(90deg)':'';
+  if(b)b.classList.toggle('open',!!openPhase[pid]);
+  if(c)c.style.transform=openPhase[pid]?'rotate(90deg)':'';
 }
 
+/* ---------- NOTE / COMMENT PANEL ---------- */
+function refreshNoteInner(id){
+  var el=document.getElementById('nri'+id);
+  if(el)el.innerHTML=buildNoteInner(id);
+}
+function buildNoteInner(id){
+  var html='';
+
+  // Note textarea
+  html+='<div class="note-section-lbl">Note</div>';
+  html+='<textarea class="note-textarea" oninput="setNote(\''+id+'\',this.value)" placeholder="Private note for this task...">'+esc(taskNote[id]||'')+'</textarea>';
+
+  // Attachments
+  var atts=attachMap[id]||[];
+  if(atts.length){
+    html+='<div class="note-section-lbl">Attachments</div><div class="att-list">';
+    atts.forEach(function(a){
+      var imgTypes=['jpg','jpeg','png','gif','webp','svg'];
+      if(imgTypes.indexOf((a.file_type||'').toLowerCase())>=0){
+        html+='<img class="att-img" src="'+esc(a.storage_path)+'" title="'+esc(a.filename)+'" onclick="openImg(\''+esc(a.storage_path)+'\')" />';
+      }else{
+        var icon=a.file_type==='pdf'?'📄':(['xlsx','xls','csv'].indexOf(a.file_type||'')>=0)?'📊':(['docx','doc'].indexOf(a.file_type||'')>=0)?'📝':'📎';
+        html+='<a class="att-chip" href="'+esc(a.storage_path)+'" target="_blank">'+icon+' '+esc(a.filename)+'</a>';
+      }
+    });
+    html+='</div>';
+  }
+
+  // Upload button
+  html+='<label class="upload-zone"><input type="file" onchange="handleFileUpload(\''+id+'\',this)" />📎 Attach file (image, PDF, Excel)</label>';
+
+  // Comments
+  var cms=commentMap[id]||[];
+  if(cms.length){
+    html+='<div class="note-section-lbl" style="margin-top:8px">Discussion</div><div class="comments-wrap">';
+    cms.forEach(function(c){
+      var col=userColor(c.author);
+      html+='<div class="comment-item">'
+        +'<div class="cmt-av" style="background:'+col+'20;color:'+col+'">'+initials(c.author)+'</div>'
+        +'<div class="cmt-bubble"><div class="cmt-meta"><strong>'+esc(c.author)+'</strong> · '+relTime(c.created_at)+'</div>'
+        +'<div class="cmt-body">'+esc(c.body)+'</div></div></div>';
+    });
+    html+='</div>';
+  }else{
+    html+='<div class="note-section-lbl" style="margin-top:8px">Discussion</div>';
+  }
+
+  // Comment input
+  html+='<div class="cmt-input-row">'
+    +'<textarea class="cmt-inp" id="cinp'+id+'" rows="1" placeholder="Add a comment..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();submitComment(\''+id+'\');}"></textarea>'
+    +'<button class="cmt-send" onclick="submitComment(\''+id+'\')">Send</button></div>';
+
+  return html;
+}
+
+function submitComment(id){
+  var inp=document.getElementById('cinp'+id);
+  if(!inp||!inp.value.trim())return;
+  addComment(id,inp.value);
+  inp.value='';
+}
+function handleFileUpload(id,input){
+  if(input.files&&input.files[0])uploadFile(id,input.files[0]);
+  input.value='';
+}
+function openImg(url){
+  document.getElementById('img-preview-el').src=url;
+  document.getElementById('img-modal').style.display='flex';
+}
+
+/* ---------- ADD TASK UI ---------- */
+function showAddTask(pid){
+  var r=document.getElementById('add-row-'+pid);
+  if(r){r.style.display='flex';document.getElementById('add-tx-'+pid).focus();}
+}
+function hideAddTask(pid){
+  var r=document.getElementById('add-row-'+pid);
+  if(r)r.style.display='none';
+}
+function submitAddTask(pid){
+  var txEl=document.getElementById('add-tx-'+pid);
+  var owEl=document.getElementById('add-ow-'+pid);
+  var crEl=document.getElementById('add-cr-'+pid);
+  if(!txEl||!txEl.value.trim())return;
+  addCustomTask(pid,txEl.value,(owEl?owEl.value:''),crEl&&crEl.checked);
+  txEl.value='';if(owEl)owEl.value='';if(crEl)crEl.checked=false;
+  hideAddTask(pid);
+}
+
+/* ---------- RENDER ---------- */
 function buildMetrics(){
-  var t=tot(),d=doneCount(),pct=t?Math.round(d/t*100):0,cr=critOpen();
+  var t=tot(),d=doneCount(),pct=t?Math.round(d/t*100):0,cr=critOpen(),od=overdueCount();
   document.getElementById('gfill').style.width=pct+'%';
   document.getElementById('glbl').textContent=pct+'% complete';
   document.getElementById('MET').innerHTML=
-    met('Overall progress',pct+'%',d+' of '+t+' tasks','#0C447C')+
-    met('Phases active',activePhasesCount(),'of 8 phases','#0C447C')+
-    met('Critical open',cr,cr>0?'need attention':'all clear',cr>0?'#991b1b':'#065f46')+
-    met('Target savings','$107K','per year','#0C447C')+
-    met('Grant deadline','Jun 26','2026 @ 1:30 PM CT','#991b1b');
+    met('Overall',pct+'%',d+'/'+t+' tasks','#0C447C')+
+    met('Phases active',activePhasesCount(),'of 8','#0C447C')+
+    met('Critical open',cr,cr?'need attention':'all clear',cr?'#991b1b':'#065f46')+
+    met('Overdue',od,od?'past due':'none','#92400e')+
+    met('Grant deadline','Jun 26','2026 @ 1:30 PM','#991b1b');
 }
 function met(l,v,s,vc){return '<div class="met"><div class="met-lbl">'+l+'</div><div class="met-val" style="color:'+vc+'">'+v+'</div><div class="met-sub">'+s+'</div></div>';}
 
 function buildPhaseCard(p){
   var pct=phasePct(p);
-  var vt=p.tasks.filter(visible);
+  var vt=allTasks(p).filter(visible);
+
   var rows=vt.map(function(t){
-    var d=done[t.id],st=status[t.id]||'Not started',nt=notes[t.id]||'';
+    var d=done[t.id],st=taskStatus[t.id]||'Not started';
+    var od=isOverdue(t.id)&&!d;
+    var hasCmt=(commentMap[t.id]||[]).length>0;
+    var hasAtt=(attachMap[t.id]||[]).length>0;
+    var hasNote=!!(taskNote[t.id]&&taskNote[t.id].trim());
     var sc=st==='Done'?'#065f46':st==='In progress'?'#1e40af':st==='Blocked'?'#991b1b':'#374151';
-    var opts=['Not started','In progress','Done','Blocked','Waiting'].map(function(s){return '<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>';}).join('');
-    return '<tr class="trow'+(d?' done':'')+(t.cr&&!d?' crit':'')+'">'
+    var opts=['Not started','In progress','Done','Blocked','Waiting'].map(function(s){
+      return '<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>';
+    }).join('');
+    var noteCls='icon-btn'+(hasCmt||hasNote?' has-note':'');
+    var attCls='icon-btn'+(hasAtt?' has-att':'');
+    var noteLabel=hasCmt?'💬 '+commentMap[t.id].length:hasNote?'📝':'note';
+    var rowCls='trow'+(d?' done':'')+(t.cr&&!d?' crit':'')+(od?' overdue':'');
+
+    return '<tr class="'+rowCls+'" id="trow'+t.id+'">'
       +'<td class="chkcell"><input type="checkbox"'+(d?' checked':'')+' onchange="toggleDone(\''+t.id+'\')" /></td>'
-      +'<td class="ttext">'+(t.cr&&!d?'<span class="cpill">CRITICAL</span>':'')+t.tx+'</td>'
-      +'<td><span class="otag">'+t.ow+'</span></td>'
+      +'<td class="ttext">'+(t.cr&&!d?'<span class="cpill">CRITICAL</span>':'')+esc(t.tx)+'</td>'
+      +'<td><span class="otag">'+esc(t.ow||'—')+'</span></td>'
+      +'<td><input type="date" class="due-inp'+(od?' overdue':'')+'" id="due'+t.id+'" value="'+esc(dueDate[t.id]||'')+'" onchange="setDue(\''+t.id+'\',this.value)" /></td>'
       +'<td><select class="ssel" style="color:'+sc+'" onchange="setStatus(\''+t.id+'\',this.value)">'+opts+'</select></td>'
-      +'<td><button class="nbtn'+(nt?' has':'')+'" id="nb'+t.id+'" onclick="toggleNote(\''+t.id+'\')" title="Note">note</button></td>'
+      +'<td><div class="actions-cell">'
+        +'<button class="'+noteCls+'" onclick="toggleNote(\''+t.id+'\')" title="Notes &amp; discussion">'+noteLabel+'</button>'
+        +(hasAtt?'<button class="'+attCls+'" onclick="toggleNote(\''+t.id+'\')" title="Has attachments">📎</button>':'')
+        +(t.custom?'<button class="icon-btn del" onclick="deleteCustomTask(\''+p.id+'\',\''+t.id+'\')" title="Delete task">✕</button>':'')
+      +'</div></td>'
       +'</tr>'
-      +'<tr class="nrow'+(nt?' open':'')+'" id="nr'+t.id+'"><td colspan="5" style="padding:5px 12px 10px 36px"><textarea class="ninp" oninput="setNote(\''+t.id+'\',this.value)" placeholder="Add a note for this task...">'+nt+'</textarea></td></tr>';
+      +'<tr class="nrow" id="nr'+t.id+'"><td colspan="6"><div class="nrow-inner" id="nri'+t.id+'"></div></td></tr>';
   }).join('');
 
   return '<div class="card">'
@@ -323,16 +976,26 @@ function buildPhaseCard(p){
       +'<div class="cbar" style="background:'+p.col+'"></div>'
       +'<div class="head-inner">'
         +'<span class="ph-badge" style="background:'+p.bg+';color:'+p.col+'">'+p.num+'</span>'
-        +'<span class="ph-name">'+p.name+'</span>'
-        +'<span class="ph-meta">'+p.tl+' &nbsp;. &nbsp;'+p.ow+'</span>'
+        +'<span class="ph-name">'+esc(p.name)+'</span>'
+        +'<span class="ph-meta">'+esc(p.tl)+' &nbsp;·&nbsp; '+esc(p.ow)+'</span>'
         +'<div class="ph-prog"><div class="ph-pbar"><div class="ph-pfill" style="width:'+pct+'%;background:'+p.col+'"></div></div><span class="ph-pct">'+pct+'%</span></div>'
       +'</div>'
-      +'<div class="chevron" id="ch'+p.id+'" style="transform:'+(open[p.id]?'rotate(90deg)':'')+'">></div>'
+      +'<div class="chevron" id="ch'+p.id+'" style="transform:'+(openPhase[p.id]?'rotate(90deg)':'')+'">›</div>'
     +'</div>'
-    +'<div class="card-body'+(open[p.id]?' open':'')+'" id="pb'+p.id+'">'
-      +(vt.length===0?'<div class="no-tasks">No tasks match the current filter.</div>'
-        :'<table class="tt"><thead><tr><th></th><th>Task</th><th>Owner</th><th>Status</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>')
-      +'<div class="pnotes-wrap"><label>Phase notes / blockers</label><textarea oninput="setPNote(\''+p.id+'\',this.value)" placeholder="Add phase notes, blockers, or decisions here...">'+(pnotes[p.id]||'')+'</textarea></div>'
+    +'<div class="card-body'+(openPhase[p.id]?' open':'')+'" id="pb'+p.id+'">'
+      +(vt.length===0
+        ?'<div class="no-tasks">No tasks match this filter.</div>'
+        :'<table class="tt"><thead><tr><th></th><th>Task</th><th>Owner</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+rows+'</tbody></table>')
+      +'<div class="add-task-toggle" onclick="showAddTask(\''+p.id+'\')">＋ Add task to '+esc(p.num)+'</div>'
+      +'<div class="add-task-row" id="add-row-'+p.id+'" style="display:none">'
+        +'<input class="add-tx-inp" id="add-tx-'+p.id+'" placeholder="Task description..." onkeydown="if(event.key===\'Enter\')submitAddTask(\''+p.id+'\')" />'
+        +'<input class="add-ow-inp" id="add-ow-'+p.id+'" placeholder="Owner" />'
+        +'<label class="add-cr-lbl"><input type="checkbox" id="add-cr-'+p.id+'" style="accent-color:#991b1b" /> Critical</label>'
+        +'<button class="add-save-btn" onclick="submitAddTask(\''+p.id+'\')">Add</button>'
+        +'<button class="add-cancel-btn" onclick="hideAddTask(\''+p.id+'\')">Cancel</button>'
+      +'</div>'
+      +'<div class="pnotes-wrap"><label>Phase notes / blockers</label>'
+        +'<textarea oninput="setPNote(\''+p.id+'\',this.value)" placeholder="Blockers, decisions, context for this phase...">'+esc(pnotes[p.id]||'')+'</textarea></div>'
     +'</div>'
   +'</div>';
 }
@@ -340,12 +1003,21 @@ function buildPhaseCard(p){
 function buildPhases(){document.getElementById('PH').innerHTML=PH.map(buildPhaseCard).join('');}
 function buildContacts(){
   document.getElementById('CG').innerHTML=CT.map(function(c){
-    return '<div class="ccard"><div class="av" style="background:'+c.c+'20;color:'+c.c+'">'+c.i+'</div>'
-      +'<div><div class="cn">'+c.n+'</div><div class="cr">'+c.r+'<br><span style="color:#9ca3af">'+c.a+'</span></div></div></div>';
+    return '<div class="ccard"><div class="cav" style="background:'+c.c+'20;color:'+c.c+'">'+c.i+'</div>'
+      +'<div><div class="cn">'+esc(c.n)+'</div><div class="crl">'+esc(c.r)+'<br><span style="color:#9ca3af">'+esc(c.a)+'</span></div></div></div>';
   }).join('');
 }
 function rebuild(){buildMetrics();buildPhases();}
-buildMetrics();buildPhases();buildContacts();
+
+/* ---------- INIT ---------- */
+loadLocalState();
+buildUserModal();
+updateUserChip();
+buildContacts();
+rebuild();
+buildActivityFeed();
+if(!currentUser)showUserModal();
+initDB();
 </script>
 </body>
 </html>
