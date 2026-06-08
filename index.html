@@ -1219,8 +1219,8 @@ function switchTab(tab,btn){
 }
 
 /* ---------- SETTINGS ---------- */
-var teamsWebhook=localStorage.getItem('teams_webhook')||'';
-var teamsLink=localStorage.getItem('teams_link')||'';
+var teamsWebhook=localStorage.getItem('teams_webhook')||'https://defaultfbe77cc875ce456d9b2eddbf1a8cf2.4b.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f61a80efa1f74845a176fd928f09faf0/triggers/manual/paths/invoke?api-version=1';
+var teamsLink=localStorage.getItem('teams_link')||'https://teams.microsoft.com/l/channel/19%3A7nTZO2uJfo7NtYpEdWCX0RAWM_PYxYb5xWtt2WT-NDc1%40thread.tacv2/BESS%20Project?groupId=7fd00508-1557-41ee-8661-510c300fe645&tenantId=fbe77cc8-75ce-456d-9b2e-ddbf1a8cf24b&ngc=true';
 function showSettings(){
   document.getElementById('teams-webhook-inp').value=teamsWebhook;
   document.getElementById('teams-link-inp').value=teamsLink;
@@ -1235,12 +1235,19 @@ function saveSettings(){
 }
 function fireTeamsWebhook(msg){
   if(!teamsWebhook)return;
-  fetch(teamsWebhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    '@type':'MessageCard','@context':'http://schema.org/extensions',
-    themeColor:'0C447C',summary:'BESS Tracker Update',
-    sections:[{activityTitle:msg,activitySubtitle:'BESS Installation — Spuncast',
-      facts:[{name:'Project',value:'Docket 9709-FG-2026'},{name:'View',value:'https://bess-tracker.vercel.app'}]}]
-  })}).catch(function(){});
+  // Power Automate HTTP trigger — send simple JSON the flow can parse
+  fetch(teamsWebhook,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      title:'BESS Tracker Update',
+      message:msg,
+      author:currentUser||'Someone',
+      project:'Spuncast BESS — Docket 9709-FG-2026',
+      url:'https://bess-tracker.vercel.app',
+      timestamp:new Date().toISOString()
+    })
+  }).catch(function(){});
 }
 
 /* ---------- DIGEST / STATUS REPORT ---------- */
