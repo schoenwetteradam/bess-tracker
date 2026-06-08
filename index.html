@@ -213,6 +213,110 @@ td{padding:7px 10px;vertical-align:middle;}
 /* IMG PREVIEW */
 #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
 #img-modal img{max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+
+/* HEADER ICON BUTTONS */
+.hdr-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:12px;transition:background .15s;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(255,255,255,.28);}
+
+/* TABS */
+.tab-nav{display:flex;gap:4px;margin-bottom:16px;background:#fff;border:1px solid #e0e4ea;border-radius:10px;padding:4px;}
+.tab-btn{flex:1;padding:7px 12px;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:#6b7280;background:transparent;transition:all .15s;}
+.tab-btn:hover{background:#f3f4f6;color:#374151;}
+.tab-btn.on{background:#0C447C;color:#fff;}
+.tab-view{display:none;}
+.tab-view.on{display:block;}
+
+/* GANTT */
+.gantt-wrap{background:#fff;border:1px solid #e0e4ea;border-radius:12px;overflow:hidden;}
+.gantt-header{padding:14px 16px;border-bottom:1px solid #f0f2f5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.gantt-header h3{font-size:14px;font-weight:600;color:#111;}
+.gantt-header p{font-size:12px;color:#6b7280;flex:1;}
+.gantt-date-row{display:flex;gap:8px;align-items:center;}
+.gantt-date-row label{font-size:11px;color:#6b7280;font-weight:600;}
+.gantt-date-inp{font-size:12px;border:1px solid #e0e4ea;border-radius:5px;padding:3px 7px;outline:none;}
+.gantt-date-inp:focus{border-color:#0C447C;}
+.gantt-body{padding:16px;}
+.gantt-ruler{display:flex;margin-bottom:6px;margin-left:180px;}
+.gantt-ruler-lbl{font-size:10px;color:#9ca3af;font-weight:600;text-align:center;flex:1;}
+.gantt-row{display:flex;align-items:center;margin-bottom:8px;gap:8px;}
+.gantt-label{width:172px;flex-shrink:0;display:flex;align-items:center;gap:6px;}
+.gantt-phase-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;}
+.gantt-phase-name{font-size:11px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gantt-track{flex:1;height:26px;background:#f3f4f6;border-radius:6px;position:relative;overflow:visible;}
+.gantt-bar{position:absolute;top:3px;height:20px;border-radius:5px;display:flex;align-items:center;padding:0 6px;font-size:10px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;cursor:pointer;transition:opacity .15s;min-width:4px;}
+.gantt-bar:hover{opacity:.85;}
+.gantt-bar-fill{position:absolute;top:0;left:0;height:100%;background:rgba(255,255,255,.25);border-radius:5px;}
+.gantt-today{position:absolute;top:-4px;bottom:-4px;width:2px;background:#F59E0B;border-radius:1px;z-index:2;}
+.gantt-today-lbl{position:absolute;top:-18px;font-size:9px;font-weight:700;color:#F59E0B;white-space:nowrap;transform:translateX(-50%);}
+.gantt-edit-row{display:flex;align-items:center;gap:6px;margin-top:4px;padding:8px 10px;background:#f8faff;border-radius:7px;flex-wrap:wrap;}
+.gantt-edit-row label{font-size:11px;color:#6b7280;font-weight:600;white-space:nowrap;}
+.gantt-edit-inp{font-size:11px;border:1px solid #e0e4ea;border-radius:5px;padding:3px 6px;outline:none;}
+.gantt-edit-inp:focus{border-color:#0C447C;}
+.gantt-save-btn{font-size:11px;background:#0C447C;color:#fff;border:none;border-radius:5px;padding:4px 10px;cursor:pointer;}
+.gantt-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:10px;border-top:1px solid #f0f2f5;}
+.gantt-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#6b7280;}
+.gantt-legend-dot{width:10px;height:10px;border-radius:3px;}
+
+/* BUDGET */
+.budget-wrap{background:#fff;border:1px solid #e0e4ea;border-radius:12px;overflow:hidden;}
+.budget-header{padding:14px 16px;border-bottom:1px solid #f0f2f5;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.budget-header h3{font-size:14px;font-weight:600;color:#111;}
+.budget-burn{flex:1;min-width:200px;}
+.budget-burn-lbl{display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:4px;}
+.budget-burn-bar{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;}
+.budget-burn-fill{height:100%;border-radius:4px;transition:width .4s;}
+.budget-total-badge{font-size:13px;font-weight:700;color:#0C447C;white-space:nowrap;}
+table.btbl{width:100%;border-collapse:collapse;font-size:13px;}
+table.btbl th{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;padding:8px 14px;background:#f8f9fb;border-bottom:1px solid #e9ecef;text-align:left;}
+table.btbl td{padding:8px 14px;border-bottom:1px solid #f0f2f5;vertical-align:middle;}
+table.btbl tr:last-child td{border-bottom:none;}
+table.btbl tr.btotal td{background:#f0f7ff;font-weight:700;color:#0C447C;border-top:2px solid #e0e4ea;}
+.cost-inp{font-size:13px;border:1px solid transparent;border-radius:5px;padding:3px 7px;width:130px;text-align:right;background:transparent;outline:none;color:#374151;}
+.cost-inp:hover{border-color:#e0e4ea;background:#fff;}
+.cost-inp:focus{border-color:#0C447C;background:#fff;}
+.cost-over{color:#991b1b;}
+.cost-under{color:#065f46;}
+.budget-add-row{padding:10px 14px;background:#f8f9fb;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.budget-add-inp{flex:1;min-width:160px;font-size:13px;border:1px solid #e0e4ea;border-radius:6px;padding:6px 10px;outline:none;font-family:inherit;}
+.budget-add-inp:focus{border-color:#0C447C;}
+.budget-add-btn{background:#0C447C;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:12px;font-weight:600;}
+.incentive-row td{background:#F0FDF4;color:#065f46;}
+.incentive-row td:first-child{font-style:italic;}
+
+/* DIGEST MODAL */
+.digest-modal .modal{max-width:640px;}
+.digest-out{background:#f8f9fb;border:1px solid #e0e4ea;border-radius:8px;padding:14px;font-size:12px;line-height:1.8;white-space:pre-wrap;font-family:inherit;max-height:380px;overflow-y:auto;color:#374151;margin:12px 0;}
+.digest-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.digest-copy-btn{background:#0C447C;color:#fff;border:none;border-radius:7px;padding:8px 18px;cursor:pointer;font-size:13px;font-weight:600;}
+.digest-teams-btn{background:#6264A7;color:#fff;border:none;border-radius:7px;padding:8px 18px;cursor:pointer;font-size:13px;font-weight:600;}
+.digest-close-btn{background:#f3f4f6;color:#374151;border:none;border-radius:7px;padding:8px 16px;cursor:pointer;font-size:13px;margin-left:auto;}
+
+/* SETTINGS MODAL */
+.settings-modal .modal{max-width:440px;}
+.settings-row{margin-bottom:14px;}
+.settings-lbl{font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;}
+.settings-hint{font-size:11px;color:#9ca3af;margin-top:3px;line-height:1.5;}
+.settings-inp{width:100%;font-size:13px;border:1px solid #e0e4ea;border-radius:7px;padding:8px 11px;outline:none;font-family:inherit;}
+.settings-inp:focus{border-color:#0C447C;}
+.settings-save-btn{width:100%;background:#0C447C;color:#fff;border:none;border-radius:8px;padding:9px;cursor:pointer;font-size:13px;font-weight:600;margin-top:6px;}
+.settings-save-btn:hover{background:#185FA5;}
+
+/* MOBILE */
+@media(max-width:640px){
+  header{padding:10px 14px;}
+  header h1{font-size:14px;}
+  .header-right{gap:6px;}
+  .prog-wrap{display:none;}
+  .hdr-btn span{display:none;}
+  main{padding:10px 8px 60px;}
+  .tab-nav{gap:2px;padding:3px;}
+  .tab-btn{font-size:12px;padding:6px 8px;}
+  table.tt th:nth-child(4){display:none;}
+  table.tt td:nth-child(4){display:none;}
+  .gantt-label{width:100px;}
+  .gantt-ruler{margin-left:108px;}
+  .budget-burn{display:none;}
+}
 </style>
 </head>
 <body>
@@ -310,12 +414,47 @@ alter table attachments replica identity full;</div>
       <div class="prog-bar"><div class="prog-fill" id="gfill"></div></div>
       <span class="prog-lbl" id="glbl">0% complete</span>
     </div>
+    <button class="hdr-btn" onclick="showDigest()" title="Generate status report">📋 <span>Report</span></button>
+    <button class="hdr-btn" onclick="showSettings()" title="Settings">⚙️</button>
     <div class="user-chip" onclick="showUserModal()" title="Change user">
       <div class="uav" id="user-av">?</div>
       <span id="user-name-lbl">Set name</span>
     </div>
   </div>
 </header>
+
+<!-- DIGEST MODAL -->
+<div id="digest-modal" class="modal-overlay digest-modal" style="display:none">
+  <div class="modal">
+    <h2>📋 Status Report</h2>
+    <p class="modal-sub">Current snapshot of the BESS project. Copy and paste into Teams, email, or wherever.</p>
+    <div class="digest-out" id="digest-out"></div>
+    <div class="digest-actions">
+      <button class="digest-copy-btn" onclick="copyDigest()">Copy to clipboard</button>
+      <button class="digest-teams-btn" onclick="openTeams()">Open in Teams</button>
+      <button class="digest-close-btn" onclick="document.getElementById('digest-modal').style.display='none'">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="modal-overlay settings-modal" style="display:none">
+  <div class="modal">
+    <h2>⚙️ Settings</h2>
+    <div class="settings-row">
+      <div class="settings-lbl">Teams Channel Webhook URL</div>
+      <input class="settings-inp" id="teams-webhook-inp" type="text" placeholder="https://spuncast.webhook.office.com/..." />
+      <div class="settings-hint">In Teams: go to your channel → ··· → Connectors → Incoming Webhook → copy the URL. When a critical task changes, a message posts automatically.</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-lbl">Teams Channel Link (for Report button)</div>
+      <input class="settings-inp" id="teams-link-inp" type="text" placeholder="https://teams.microsoft.com/l/channel/..." />
+      <div class="settings-hint">Right-click your channel → Get link to channel. Used by the "Open in Teams" button on reports.</div>
+    </div>
+    <button class="settings-save-btn" onclick="saveSettings()">Save Settings</button>
+    <button class="modal-skip" onclick="document.getElementById('settings-modal').style.display='none'">Cancel</button>
+  </div>
+</div>
 
 <!-- SETUP BANNER -->
 <div id="setup-banner" style="display:none" class="setup-banner">
@@ -344,29 +483,87 @@ alter table attachments replica identity full;</div>
 
 <main>
   <div class="metrics" id="MET"></div>
-  <div class="filters">
-    <span class="filters-lbl">Show:</span>
-    <button class="fbtn on" onclick="setFilter('all',this)">All phases</button>
-    <button class="fbtn" onclick="setFilter('open',this)">Open tasks</button>
-    <button class="fbtn" onclick="setFilter('critical',this)">Critical only</button>
-    <button class="fbtn" onclick="setFilter('overdue',this)">Overdue</button>
-    <button class="fbtn" onclick="setFilter('adam',this)">Adam's</button>
-    <button class="fbtn" onclick="setFilter('pete',this)">Pete's</button>
-    <button class="fbtn" onclick="setFilter('andy',this)">Andy's</button>
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <button class="tab-btn on" onclick="switchTab('tasks',this)">📋 Tasks</button>
+    <button class="tab-btn" onclick="switchTab('timeline',this)">📅 Timeline</button>
+    <button class="tab-btn" onclick="switchTab('budget',this)">💰 Budget</button>
   </div>
-  <div id="PH"></div>
 
-  <div class="sec">ROI summary</div>
-  <table class="rtbl">
-    <tr><th>Scenario</th><th>Payback</th><th>Notes</th></tr>
-    <tr><td>Tier 1 — No incentives</td><td>~15.7 years</td><td>Full $1.68M gross project cost</td></tr>
-    <tr><td>Tier 2 — After $1M OEI grant</td><td>~6.4 years</td><td>Net cost ~$681K after grant</td></tr>
-    <tr><td>Tier 3 — Grant + §6418 ITC transfer (~$378K)</td><td>~2.8 years</td><td>Best case — requires tax equity / transfer partner</td></tr>
-  </table>
-  <p style="font-size:11px;color:#6b7280;margin-top:7px;">STPR rate: Summer on-peak $22.331/kW | Non-summer $16.066/kW | On-peak window: Noon–8 PM Mon–Fri non-holiday</p>
+  <!-- TASKS TAB -->
+  <div id="view-tasks" class="tab-view on">
+    <div class="filters">
+      <span class="filters-lbl">Show:</span>
+      <button class="fbtn on" onclick="setFilter('all',this)">All phases</button>
+      <button class="fbtn" onclick="setFilter('open',this)">Open tasks</button>
+      <button class="fbtn" onclick="setFilter('critical',this)">Critical only</button>
+      <button class="fbtn" onclick="setFilter('overdue',this)">Overdue</button>
+      <button class="fbtn" onclick="setFilter('adam',this)">Adam's</button>
+      <button class="fbtn" onclick="setFilter('pete',this)">Pete's</button>
+      <button class="fbtn" onclick="setFilter('andy',this)">Andy's</button>
+    </div>
+    <div id="PH"></div>
+    <div class="sec">ROI summary</div>
+    <table class="rtbl">
+      <tr><th>Scenario</th><th>Payback</th><th>Notes</th></tr>
+      <tr><td>Tier 1 — No incentives</td><td>~15.7 years</td><td>Full $1.68M gross project cost</td></tr>
+      <tr><td>Tier 2 — After $1M OEI grant</td><td>~6.4 years</td><td>Net cost ~$681K after grant</td></tr>
+      <tr><td>Tier 3 — Grant + §6418 ITC transfer (~$378K)</td><td>~2.8 years</td><td>Best case — requires tax equity / transfer partner</td></tr>
+    </table>
+    <p style="font-size:11px;color:#6b7280;margin-top:7px;">STPR rate: Summer on-peak $22.331/kW | Non-summer $16.066/kW | On-peak window: Noon–8 PM Mon–Fri non-holiday</p>
+    <div class="sec" style="margin-top:22px;">Key contacts</div>
+    <div class="cgrid" id="CG"></div>
+  </div>
 
-  <div class="sec" style="margin-top:22px;">Key contacts</div>
-  <div class="cgrid" id="CG"></div>
+  <!-- TIMELINE TAB -->
+  <div id="view-timeline" class="tab-view">
+    <div class="gantt-wrap">
+      <div class="gantt-header">
+        <div>
+          <h3>Project Timeline</h3>
+          <p>Click any bar to set actual start/end dates for that phase.</p>
+        </div>
+        <div class="gantt-date-row">
+          <label>View from</label>
+          <input type="date" class="gantt-date-inp" id="gantt-start" value="2026-05-01" onchange="renderGantt()" />
+          <label>to</label>
+          <input type="date" class="gantt-date-inp" id="gantt-end" value="2027-01-01" onchange="renderGantt()" />
+        </div>
+      </div>
+      <div class="gantt-body">
+        <div class="gantt-ruler" id="gantt-ruler"></div>
+        <div id="gantt-rows"></div>
+        <div id="gantt-edit-panel"></div>
+        <div class="gantt-legend" id="gantt-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUDGET TAB -->
+  <div id="view-budget" class="tab-view">
+    <div class="budget-wrap">
+      <div class="budget-header">
+        <h3>Budget Tracker</h3>
+        <div class="budget-burn" id="budget-burn-wrap">
+          <div class="budget-burn-lbl"><span id="budget-committed-lbl">$0 committed</span><span id="budget-total-lbl">$1,680,000 budget</span></div>
+          <div class="budget-burn-bar"><div class="budget-burn-fill" id="budget-burn-fill" style="width:0%;background:#0C447C"></div></div>
+        </div>
+        <span class="budget-total-badge" id="budget-net-lbl"></span>
+      </div>
+      <table class="btbl">
+        <thead><tr><th>Category</th><th>Description</th><th style="text-align:right">Estimated</th><th style="text-align:right">Actual / Committed</th><th style="text-align:right">Variance</th></tr></thead>
+        <tbody id="budget-rows"></tbody>
+        <tfoot id="budget-footer"></tfoot>
+      </table>
+      <div class="budget-add-row">
+        <input class="budget-add-inp" id="budget-add-cat" placeholder="Category" style="max-width:140px" />
+        <input class="budget-add-inp" id="budget-add-desc" placeholder="Description" />
+        <input class="budget-add-inp" id="budget-add-est" placeholder="Estimated $" style="max-width:120px" type="number" />
+        <button class="budget-add-btn" onclick="addBudgetLine()">Add Line</button>
+      </div>
+      <div style="padding:10px 14px;font-size:11px;color:#9ca3af;">Click any Actual cell to enter costs. Changes saved locally in your browser.</div>
+    </div>
+  </div>
 </main>
 
 <script>
@@ -1008,6 +1205,265 @@ function buildContacts(){
   }).join('');
 }
 function rebuild(){buildMetrics();buildPhases();}
+
+/* ---------- TABS ---------- */
+var activeTab='tasks';
+function switchTab(tab,btn){
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.tab-view').forEach(function(v){v.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('view-'+tab).classList.add('on');
+  if(tab==='timeline')renderGantt();
+  if(tab==='budget')renderBudget();
+}
+
+/* ---------- SETTINGS ---------- */
+var teamsWebhook=localStorage.getItem('teams_webhook')||'';
+var teamsLink=localStorage.getItem('teams_link')||'';
+function showSettings(){
+  document.getElementById('teams-webhook-inp').value=teamsWebhook;
+  document.getElementById('teams-link-inp').value=teamsLink;
+  document.getElementById('settings-modal').style.display='flex';
+}
+function saveSettings(){
+  teamsWebhook=(document.getElementById('teams-webhook-inp').value||'').trim();
+  teamsLink=(document.getElementById('teams-link-inp').value||'').trim();
+  localStorage.setItem('teams_webhook',teamsWebhook);
+  localStorage.setItem('teams_link',teamsLink);
+  document.getElementById('settings-modal').style.display='none';
+}
+function fireTeamsWebhook(msg){
+  if(!teamsWebhook)return;
+  fetch(teamsWebhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    '@type':'MessageCard','@context':'http://schema.org/extensions',
+    themeColor:'0C447C',summary:'BESS Tracker Update',
+    sections:[{activityTitle:msg,activitySubtitle:'BESS Installation — Spuncast',
+      facts:[{name:'Project',value:'Docket 9709-FG-2026'},{name:'View',value:'https://bess-tracker.vercel.app'}]}]
+  })}).catch(function(){});
+}
+
+/* ---------- DIGEST / STATUS REPORT ---------- */
+function showDigest(){
+  var txt=generateDigest();
+  document.getElementById('digest-out').textContent=txt;
+  document.getElementById('digest-modal').style.display='flex';
+}
+function generateDigest(){
+  var t=tot(),d=doneCount(),pct=t?Math.round(d/t*100):0;
+  var cr=critOpen(),od=overdueCount();
+  var lines=[];
+  lines.push('BESS Installation Status Report — Spuncast, Inc.');
+  lines.push('Docket 9709-FG-2026 | '+new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}));
+  lines.push('');
+  lines.push('OVERALL PROGRESS: '+pct+'% ('+d+' of '+t+' tasks complete)');
+  lines.push('Critical open: '+cr+' | Overdue: '+od);
+  lines.push('');
+  lines.push('PHASE SUMMARY');
+  lines.push('─────────────────────────────────────────');
+  PH.forEach(function(p){
+    var pc=phasePct(p);
+    var ts=allTasks(p);
+    var open=ts.filter(function(t){return !done[t.id];}).length;
+    var bar='['+('█').repeat(Math.round(pc/10))+('░').repeat(10-Math.round(pc/10))+']';
+    lines.push(p.num+': '+bar+' '+pc+'% — '+open+' tasks remaining');
+  });
+  lines.push('');
+  var critItems=[];
+  PH.forEach(function(p){allTasks(p).forEach(function(t){if(t.cr&&!done[t.id])critItems.push('  • ['+p.num+'] '+t.tx);});});
+  if(critItems.length){
+    lines.push('CRITICAL OPEN ITEMS');
+    lines.push('─────────────────────────────────────────');
+    critItems.forEach(function(l){lines.push(l);});
+    lines.push('');
+  }
+  var overdueItems=[];
+  PH.forEach(function(p){allTasks(p).forEach(function(t){if(isOverdue(t.id))overdueItems.push('  • ['+p.num+'] '+t.tx+' (due '+dueDate[t.id]+')');});});
+  if(overdueItems.length){
+    lines.push('OVERDUE');
+    lines.push('─────────────────────────────────────────');
+    overdueItems.forEach(function(l){lines.push(l);});
+    lines.push('');
+  }
+  var recent=activityLog.slice(0,8);
+  if(recent.length){
+    lines.push('RECENT ACTIVITY');
+    lines.push('─────────────────────────────────────────');
+    recent.forEach(function(a){lines.push('  • '+relTime(a.created_at)+' — '+a.detail);});
+    lines.push('');
+  }
+  lines.push('Grant deadline: June 26, 2026 @ 1:30 PM CT — OEI EIGP Round 6');
+  lines.push('Target savings: ~$107,000/yr | View tracker: https://bess-tracker.vercel.app');
+  return lines.join('\n');
+}
+function copyDigest(){
+  var txt=document.getElementById('digest-out').textContent;
+  navigator.clipboard.writeText(txt).then(function(){
+    var btn=document.querySelector('.digest-copy-btn');
+    btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='Copy to clipboard';},2000);
+  });
+}
+function openTeams(){
+  if(teamsLink){window.open(teamsLink,'_blank');return;}
+  alert('Add your Teams channel link in ⚙️ Settings first.');
+}
+
+/* ---------- GANTT ---------- */
+var phaseDates=JSON.parse(localStorage.getItem('bess_phase_dates')||'{}');
+var PHASE_DEFAULTS={
+  p1:{s:'2026-05-15',e:'2026-06-26'},
+  p2:{s:'2026-06-01',e:'2026-07-25'},
+  p3:{s:'2026-06-01',e:'2026-07-25'},
+  p4:{s:'2026-06-15',e:'2026-08-01'},
+  p5:{s:'2026-05-01',e:'2026-08-01'},
+  p6:{s:'2026-07-20',e:'2026-08-15'},
+  p7:{s:'2026-08-15',e:'2026-10-15'},
+  p8:{s:'2026-10-15',e:'2026-12-31'}
+};
+function getPhaseDate(pid,key){
+  return (phaseDates[pid]&&phaseDates[pid][key])||(PHASE_DEFAULTS[pid]&&PHASE_DEFAULTS[pid][key===start?'s':'e'])||(key==='s'?'2026-06-01':'2026-12-31');
+}
+function savePhaseDate(pid,s,e){
+  if(!phaseDates[pid])phaseDates[pid]={};
+  phaseDates[pid].s=s;phaseDates[pid].e=e;
+  localStorage.setItem('bess_phase_dates',JSON.stringify(phaseDates));
+  renderGantt();
+}
+function renderGantt(){
+  var rangeStart=new Date(document.getElementById('gantt-start').value||'2026-05-01');
+  var rangeEnd=new Date(document.getElementById('gantt-end').value||'2027-01-01');
+  var totalMs=rangeEnd-rangeStart;
+  if(totalMs<=0)return;
+
+  // ruler — monthly labels
+  var ruler=document.getElementById('gantt-ruler');
+  var months=[];
+  var cur=new Date(rangeStart.getFullYear(),rangeStart.getMonth(),1);
+  while(cur<rangeEnd){months.push(new Date(cur));cur.setMonth(cur.getMonth()+1);}
+  ruler.innerHTML=months.map(function(m){
+    var pct=Math.max(0,Math.min(100,((m-rangeStart)/totalMs)*100));
+    return '<div style="position:absolute;left:'+pct+'%;font-size:10px;color:#9ca3af;transform:translateX(-50%);white-space:nowrap">'+m.toLocaleDateString('en-US',{month:'short'})+'</div>';
+  }).join('');
+  ruler.style.position='relative';ruler.style.height='16px';
+
+  // today line pct
+  var todayPct=((new Date()-rangeStart)/totalMs)*100;
+
+  var rows=document.getElementById('gantt-rows');
+  rows.innerHTML=PH.map(function(p){
+    var s=new Date(getPhaseDate(p.id,'s'));
+    var e=new Date(getPhaseDate(p.id,'e'));
+    var left=Math.max(0,((s-rangeStart)/totalMs)*100);
+    var right=Math.min(100,((e-rangeStart)/totalMs)*100);
+    var width=Math.max(0.5,right-left);
+    var pct=phasePct(p);
+    var todayLine=(todayPct>=left&&todayPct<=right)?'<div class="gantt-today" style="left:'+((todayPct-left)/width*100)+'%"><div class="gantt-today-lbl">today</div></div>':'';
+    return '<div class="gantt-row">'
+      +'<div class="gantt-label">'
+        +'<span class="gantt-phase-badge" style="background:'+p.bg+';color:'+p.col+'">'+p.num.replace('Phase ','P')+'</span>'
+        +'<span class="gantt-phase-name" title="'+esc(p.name)+'">'+esc(p.name.split(':')[0].split('-')[0].trim())+'</span>'
+      +'</div>'
+      +'<div class="gantt-track" onclick="showGanttEdit(\''+p.id+'\')" title="Click to set dates">'
+        +(todayPct>=0&&todayPct<=100?'<div class="gantt-today" style="left:'+todayPct+'%;top:-4px;bottom:-4px"><div class="gantt-today-lbl" style="'+(Math.abs(todayPct-50)<5?'left:8px':'')+'">today</div></div>':'')
+        +'<div class="gantt-bar" style="left:'+left+'%;width:'+width+'%;background:'+p.col+'">'
+          +'<div class="gantt-bar-fill" style="width:'+pct+'%"></div>'
+          +pct+'%'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+
+  // legend
+  document.getElementById('gantt-legend').innerHTML=PH.map(function(p){
+    return '<div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:'+p.col+'"></div>'+p.num+'</div>';
+  }).join('');
+}
+function showGanttEdit(pid){
+  var p=PH.find(function(x){return x.id===pid;});
+  var s=(phaseDates[pid]&&phaseDates[pid].s)||PHASE_DEFAULTS[pid].s;
+  var e=(phaseDates[pid]&&phaseDates[pid].e)||PHASE_DEFAULTS[pid].e;
+  document.getElementById('gantt-edit-panel').innerHTML='<div class="gantt-edit-row">'
+    +'<label>'+p.num+' dates:</label>'
+    +'<label>Start</label><input type="date" class="gantt-edit-inp" id="ge-s" value="'+s+'" />'
+    +'<label>End</label><input type="date" class="gantt-edit-inp" id="ge-e" value="'+e+'" />'
+    +'<button class="gantt-save-btn" onclick="savePhaseDate(\''+pid+'\',document.getElementById(\'ge-s\').value,document.getElementById(\'ge-e\').value)">Save</button>'
+    +'<button onclick="document.getElementById(\'gantt-edit-panel\').innerHTML=\'\'" style="font-size:11px;border:none;background:none;cursor:pointer;color:#9ca3af">✕</button>'
+  +'</div>';
+}
+
+/* ---------- BUDGET ---------- */
+var BUDGET_DEFAULTS=[
+  {cat:'Equipment',desc:'2× Generac SBE Cabinet + 2× ARC controllers + 10-yr warranty',est:1200000,act:''},
+  {cat:'Equipment',desc:'2× 500 kVA step-up transformers',est:80000,act:''},
+  {cat:'Civil',desc:'Reinforced concrete pads (×4) — materials and pour',est:80000,act:''},
+  {cat:'Electrical',desc:'Feeder conduit, CTs, grounding, disconnects, terminations',est:200000,act:''},
+  {cat:'Engineering',desc:'Civil/structural PE stamp, geotechnical soil report',est:35000,act:''},
+  {cat:'Permits',desc:'Wisconsin building + electrical permits, city zoning review',est:15000,act:''},
+  {cat:'Commissioning',desc:'Generac factory tech on-site, ARC programming',est:20000,act:''},
+  {cat:'Contingency',desc:'10% contingency',est:50000,act:''}
+];
+var budgetLines=JSON.parse(localStorage.getItem('bess_budget')||'null')||BUDGET_DEFAULTS.map(function(x){return Object.assign({},x);});
+function saveBudget(){localStorage.setItem('bess_budget',JSON.stringify(budgetLines));}
+function fmt$(n){return n===''||n===null||n===undefined?'—':'$'+Number(n).toLocaleString();}
+function renderBudget(){
+  var totalEst=budgetLines.reduce(function(a,l){return a+(Number(l.est)||0);},0);
+  var totalAct=budgetLines.reduce(function(a,l){return a+(l.act!==''?Number(l.act)||0:0);},0);
+  var committed=budgetLines.filter(function(l){return l.act!=='';}).reduce(function(a,l){return a+(Number(l.act)||0);},0);
+  var pct=totalEst?Math.min(100,Math.round(committed/totalEst*100)):0;
+  document.getElementById('budget-burn-fill').style.width=pct+'%';
+  document.getElementById('budget-burn-fill').style.background=pct>90?'#991b1b':pct>70?'#F59E0B':'#0C447C';
+  document.getElementById('budget-committed-lbl').textContent='$'+committed.toLocaleString()+' committed';
+  document.getElementById('budget-total-lbl').textContent='$'+totalEst.toLocaleString()+' estimated';
+  var net=totalEst-committed;
+  var netEl=document.getElementById('budget-net-lbl');
+  netEl.textContent=(net>=0?'$'+net.toLocaleString()+' remaining':'$'+Math.abs(net).toLocaleString()+' over');
+  netEl.style.color=net>=0?'#065f46':'#991b1b';
+
+  var rows=document.getElementById('budget-rows');
+  rows.innerHTML=budgetLines.map(function(l,i){
+    var variance=l.act!==''?(Number(l.est)||0)-(Number(l.act)||0):'';
+    var varClass=variance===''?'':(variance>=0?'cost-under':'cost-over');
+    return '<tr>'
+      +'<td style="font-weight:500;color:#374151">'+esc(l.cat)+'</td>'
+      +'<td style="color:#6b7280;font-size:12px">'+esc(l.desc)+'</td>'
+      +'<td style="text-align:right"><input class="cost-inp" type="number" value="'+(l.est||'')+'" onchange="budgetLines['+i+'].est=this.value;saveBudget();renderBudget()" /></td>'
+      +'<td style="text-align:right"><input class="cost-inp" type="number" placeholder="Enter actual..." value="'+(l.act||'')+'" onchange="budgetLines['+i+'].act=this.value;saveBudget();renderBudget()" /></td>'
+      +'<td style="text-align:right;font-weight:600" class="'+varClass+'">'+(variance===''?'—':fmt$(Math.abs(variance))+(variance>=0?' under':' over'))+'</td>'
+    +'</tr>';
+  }).join('');
+
+  var footer=document.getElementById('budget-footer');
+  footer.innerHTML='<tr class="btotal">'
+    +'<td colspan="2">TOTAL</td>'
+    +'<td style="text-align:right">'+fmt$(totalEst)+'</td>'
+    +'<td style="text-align:right">'+(committed?fmt$(committed):'—')+'</td>'
+    +'<td style="text-align:right;color:'+(totalEst-committed>=0?'#065f46':'#991b1b')+'">'+fmt$(totalEst-committed)+' '+(totalEst-committed>=0?'remaining':'over')+'</td>'
+  +'</tr>'
+  +'<tr class="incentive-row"><td>OEI Grant</td><td>Pending award — reduces net cost</td><td style="text-align:right;color:#065f46">−$1,000,000</td><td style="text-align:right">TBD</td><td></td></tr>'
+  +'<tr class="incentive-row"><td>§6418 ITC Transfer</td><td>Best case — ~22.5% of eligible basis</td><td style="text-align:right;color:#065f46">−$378,000</td><td style="text-align:right">TBD</td><td></td></tr>';
+}
+function addBudgetLine(){
+  var cat=(document.getElementById('budget-add-cat').value||'').trim();
+  var desc=(document.getElementById('budget-add-desc').value||'').trim();
+  var est=document.getElementById('budget-add-est').value;
+  if(!cat&&!desc)return;
+  budgetLines.push({cat:cat||'Other',desc:desc,est:Number(est)||0,act:''});
+  saveBudget();renderBudget();
+  document.getElementById('budget-add-cat').value='';
+  document.getElementById('budget-add-desc').value='';
+  document.getElementById('budget-add-est').value='';
+}
+
+/* ---------- TEAMS WEBHOOK ON CRITICAL CHANGES ---------- */
+var _origSetStatus=setStatus;
+setStatus=function(id,v){
+  _origSetStatus(id,v);
+  var t=findTask(id);
+  if(t&&t.cr&&teamsWebhook){
+    var emoji=v==='Done'?'✅':v==='Blocked'?'🚫':v==='In progress'?'🔄':'';
+    fireTeamsWebhook(emoji+' Critical task '+v+': "'+t.tx.slice(0,80)+'"');
+  }
+};
 
 /* ---------- INIT ---------- */
 loadLocalState();
